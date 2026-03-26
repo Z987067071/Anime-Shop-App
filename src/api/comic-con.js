@@ -1,4 +1,4 @@
-import request from '@/utils/request' // 引入你已封装好的request工具
+import request from '@/utils/request'
 import { getProductPage, getCategoryList } from './product'
 
 export async function getComicProductList() {
@@ -8,7 +8,6 @@ export async function getComicProductList() {
     if (categoryRes.code !== 0 || !categoryRes.data) {
       return { code: 1, data: { records: [] }, msg: '获取分类列表失败' }
     }
-
     // 第二步：递归遍历，只提取【二级分类】中含“漫展”的分类ID
     let comicSecondCateId = null
     // 递归函数：只处理二级分类（categoryLevel === 2）
@@ -20,7 +19,6 @@ export async function getComicProductList() {
           // 找到后直接终止递归
           if (comicSecondCateId) return
         }
-        // 核心：只匹配二级分类 + 名称含“漫展”
         if (cate.categoryLevel === 2 && cate.categoryName.includes('漫展')) {
           comicSecondCateId = cate.id
           return
@@ -29,7 +27,6 @@ export async function getComicProductList() {
     }
     findComicSecondCategory(categoryRes.data)
 
-    // 未找到漫展相关二级分类，返回空
     if (!comicSecondCateId) {
       return { code: 0, data: { records: [] }, msg: '未找到漫展相关二级分类，请先在商品分类中创建' }
     }
@@ -56,12 +53,10 @@ export async function getComicProductList() {
 
 /**
  * 新增漫展
- * @param {Object} data 漫展信息对象（包含name、startTime、endTime、venue等字段）
- * @returns {Promise} 请求Promise对象
  */
 export function addComicCon(data) {
   return request({
-    url: '/admin/comic-con/add', // 如果你选择加/add就用这个路径；如果没加，改成 '/api/admin/comic-con'
+    url: '/admin/comic-con/add',
     method: 'post',
     data: data
   })
@@ -74,7 +69,7 @@ export function addComicCon(data) {
  */
 export function deleteComicCon(id) {
   return request({
-    url: `/admin/comic-con/${id}`, // 如果你想加/delete，可改成 `/api/admin/comic-con/delete/${id}`
+    url: `/admin/comic-con/${id}`,
     method: 'delete'
   })
 }
@@ -87,7 +82,7 @@ export function deleteComicCon(id) {
  */
 export function updateComicCon(id, data) {
   return request({
-    url: `/admin/comic-con/${id}`, // 如果你想加/update，可改成 `/api/admin/comic-con/update/${id}`
+    url: `/admin/comic-con/${id}`,
     method: 'put',
     data: data
   })
@@ -100,8 +95,7 @@ export function updateComicCon(id, data) {
  */
 export function getComicConDetail(id) {
   return request({
-    url: `/admin/comic-con/${id}`, // 如果你想加/detail，可改成 `/api/admin/comic-con/detail/${id}`
-    method: 'get'
+    url: `/admin/comic-con/${id}`,
   })
 }
 
@@ -114,7 +108,7 @@ export function getComicConList(params) {
   return request({
     url: '/admin/comic-con/list',
     method: 'get',
-    params: params // get请求用params传参，post用data，和后端对应
+    params: params
   })
 }
 
@@ -126,7 +120,7 @@ export function getComicConList(params) {
  */
 export function updateComicConStatus(id, status) {
   return request({
-    url: `/admin/comic-con/${id}/status`, // 如果你想加/updateStatus，可改成 `/api/admin/comic-con/updateStatus/${id}`
+    url: `/admin/comic-con/${id}/status`,
     method: 'put',
     params: { status }
   })

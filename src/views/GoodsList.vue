@@ -1,6 +1,5 @@
 <template>
   <div class="goods-list-page">
-    <!-- 导航栏：显示分类名称 -->
     <van-nav-bar 
       :title="decodeCategoryName || '商品列表'" 
       left-arrow 
@@ -60,16 +59,14 @@ import { getProductListByCategory } from '@/api/mobile/product'
 const route = useRoute()
 const router = useRouter()
 
-// 页面状态
-const loading = ref(false)       // 加载状态
-const refreshing = ref(false)    // 下拉刷新状态
-const finished = ref(false)      // 加载完成
-const goodsList = ref([])        // 商品列表
-const pageNum = ref(1)           // 当前页码
-const pageSize = ref(20)         // 页大小
-const totalPages = ref(0)        // 总页数（关键：判断是否加载到底）
+const loading = ref(false)
+const refreshing = ref(false)
+const finished = ref(false)
+const goodsList = ref([])
+const pageNum = ref(1)
+const pageSize = ref(20)
+const totalPages = ref(0)
 
-// 解析分类ID和名称
 const categoryId = computed(() => {
   const id = route.query.categoryId
   return id ? Number(id) : ''
@@ -85,12 +82,11 @@ const decodeCategoryName = computed(() => {
   }
 })
 
-// 图片加载失败兜底
+
 const handleImgError = (e) => {
-  e.target.src = '' // 兜底图
+  e.target.src = ''
 }
 
-// 跳商品详情
 const goDetail = (id) => {
   router.push({
     name: 'GoodsDetail',
@@ -98,16 +94,13 @@ const goDetail = (id) => {
   })
 }
 
-// 核心：请求分类商品数据（修复分页参数+数据解析）
 const loadGoodsList = async (isRefresh = false) => {
   if (loading.value) return
-  // 无分类ID直接返回
   if (!categoryId.value) {
     finished.value = true
     return
   }
 
-  // 刷新时重置状态
   if (isRefresh) {
     pageNum.value = 1
     goodsList.value = []
@@ -117,7 +110,6 @@ const loadGoodsList = async (isRefresh = false) => {
 
   loading.value = true
   try {
-    // 修复1：传递分页参数给接口
     const res = await getProductListByCategory(categoryId.value, {
       pageNum: pageNum.value,
       pageSize: pageSize.value
@@ -125,8 +117,8 @@ const loadGoodsList = async (isRefresh = false) => {
     
     if (res.code === 0) {
       const pageData = res.data || {}
-      const list = pageData.records || [] // 核心：商品列表在records中
-      totalPages.value = pageData.pages || 0 // 获取总页数
+      const list = pageData.records || []
+      totalPages.value = pageData.pages || 0
 
       if (isRefresh) {
         goodsList.value = list
@@ -134,12 +126,11 @@ const loadGoodsList = async (isRefresh = false) => {
         goodsList.value = [...goodsList.value, ...list]
       }
 
-      // 修复3：判断是否加载到底（当前页码 >= 总页数）
       finished.value = pageNum.value >= totalPages.value
     }
   } catch (error) {
     console.error('加载商品失败：', error)
-    finished.value = true // 加载失败标记为完成，避免重复请求
+    finished.value = true
   } finally {
     loading.value = false
     refreshing.value = false
@@ -151,19 +142,17 @@ const onRefresh = () => {
   loadGoodsList(true)
 }
 
-// 上拉加载更多（修复分页逻辑）
+
 const onLoad = () => {
-  // 还有更多页才请求
   if (pageNum.value < totalPages.value) {
-    pageNum.value++ // 页码+1
-    loadGoodsList(false) // 不刷新，加载更多
+    pageNum.value++
+    loadGoodsList(false)
   } else {
     loading.value = false
     finished.value = true
   }
 }
 
-// 监听分类ID变化（切换分类时重新请求）
 watch(
   () => categoryId.value,
   () => loadGoodsList(true),
@@ -179,14 +168,12 @@ watch(
   flex-direction: column;
 }
 
-/* 加载中 */
 .loading {
   text-align: center;
   padding: 40px 0;
   color: #999;
 }
 
-/* 商品列表 */
 .goods-list {
   flex: 1;
   padding: 10px;

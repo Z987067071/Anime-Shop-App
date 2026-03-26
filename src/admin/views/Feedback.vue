@@ -1,6 +1,5 @@
 <template>
   <div class="feedback-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>工单管理</el-breadcrumb-item>
@@ -66,10 +65,7 @@
       :default-sort="{ prop: 'createTime', order: 'descending' }"
       @row-click="handleRowClick"
     >
-      <!-- 工单核心字段列 -->
       <el-table-column prop="id" fixed="left" label="工单ID" min-width="180" />
-      
-      <!-- 用户信息列 -->
       <el-table-column label="用户信息" min-width="280">
         <template #default="scope">
           <div class="user-info">
@@ -146,7 +142,6 @@
     >
       <div v-if="currentAuditFeedback">
         <el-form :model="auditForm" label-width="80px">
-          <!-- 显示用户信息 -->
           <el-form-item label="用户信息">
             <div class="audit-user-info">
               <span class="user-name">{{ currentAuditFeedback.creator || '匿名用户' }}</span>
@@ -306,7 +301,6 @@
           </el-form>
         </div>
       </div>
-      <!-- 空数据 -->
       <div v-else class="empty-tip" style="text-align: center; padding: 50px 0;">
         暂无工单详情数据
       </div>
@@ -327,35 +321,24 @@ import {
   auditFeedback
 } from '@/api/feedback'
 
-// 全局状态
 const userStore = useUserStore()
 const loading = ref(false)
-
-// 搜索条件
 const searchForm = reactive({
   keyword: '',
   userId: '',
   status: ''
 })
 const dateRange = ref([])
-
-// 分页参数
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-
-// 列表数据
 const feedbackList = ref([])
-
-// 审核弹窗
 const auditVisible = ref(false)
 const currentAuditFeedback = ref(null)
 const auditForm = reactive({
   status: '',
   replyContent: ''
 })
-
-// 详情弹窗
 const detailVisible = ref(false)
 const currentDetailFeedback = ref(null)
 const chatRecords = ref([])
@@ -363,7 +346,6 @@ const replyForm = reactive({
   content: ''
 })
 
-// 初始化
 onMounted(() => {
   getFeedbackList()
 })
@@ -382,7 +364,6 @@ const getFeedbackList = async () => {
       endTime: dateRange.value?.[1] ? formatDate(dateRange.value[1]) + ' 23:59:59' : undefined
     }
 
-    // 清理 undefined 参数
     Object.keys(params).forEach(key => {
       if (params[key] === undefined) delete params[key]
     })
@@ -394,20 +375,18 @@ const getFeedbackList = async () => {
       return
     }
 
-    // 数据格式化 - 保留用户信息
     total.value = Number(res.data.total) || 0
     feedbackList.value = (res.data.records || []).map(item => ({
       ...item,
       id: String(item.id || ''),
-      userId: String(item.userId || ''),      // 用户ID
-      creator: item.creator || '',            // 用户昵称
+      userId: String(item.userId || ''),
+      creator: item.creator || '', 
       status: Number(item.status) || 0,
       feedbackContent: item.feedbackContent || '',
       createTime: item.createTime || '',
       updateTime: item.updateTime || ''
     }))
     
-    // 更新分页信息
     currentPage.value = Number(res.data.current) || currentPage.value
     pageSize.value = Number(res.data.size) || pageSize.value
   } catch (error) {
@@ -452,7 +431,6 @@ const getStatusTagType = (status) => {
   return typeMap[Number(status)] || 'default'
 }
 
-// 日期格式化
 const formatDate = (date) => {
   if (!date || !(date instanceof Date)) return ''
   const year = date.getFullYear()
@@ -461,20 +439,18 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`
 }
 
-// 行点击
 const handleRowClick = (row) => {
   if (!row?.id) {
     ElMessage.warning('工单数据异常')
   }
 }
 
-// 打开审核弹窗 - 传入完整用户信息
+// 打开审核弹窗
 const openAuditDialog = (row) => {
   if (!row?.id) {
     ElMessage.warning('工单数据异常，无法审核')
     return
   }
-  // 保存完整的用户信息
   currentAuditFeedback.value = {
     id: row.id,
     userId: row.userId,
@@ -533,7 +509,7 @@ const submitAudit = async () => {
   }
 }
 
-// 打开详情弹窗 - 传入完整用户信息并合并详情数据
+// 打开详情弹窗
 const openDetailDialog = async (row) => {
   if (!row?.id) {
     ElMessage.warning('工单数据异常，无法查看详情')
@@ -541,7 +517,6 @@ const openDetailDialog = async (row) => {
     return
   }
 
-  // 先保存列表中的用户信息，防止详情接口返回不完整
   const listUserInfo = {
     id: row.id,
     userId: row.userId,
@@ -557,7 +532,6 @@ const openDetailDialog = async (row) => {
   loading.value = true
   
   try {
-    // 获取详情
     const detailRes = await getFeedbackDetail(feedbackId)
 
     if (detailRes.code !== 0 || !detailRes.data) {
@@ -565,13 +539,10 @@ const openDetailDialog = async (row) => {
       return
     }
 
-    // 合并数据：列表用户信息 + 详情数据（详情优先，但保留列表的用户信息作为兜底）
     const detailData = detailRes.data
     currentDetailFeedback.value = {
-      // 列表中的用户信息作为兜底
       userId: detailData.userId || listUserInfo.userId,
       creator: detailData.creator || listUserInfo.creator,
-      // 详情接口的数据
       id: String(detailData.id || feedbackId),
       feedbackContent: detailData.feedbackContent || listUserInfo.feedbackContent,
       status: Number(detailData.status) || listUserInfo.status,
@@ -583,10 +554,8 @@ const openDetailDialog = async (row) => {
       imageUrls: detailData.imageUrls || []
     }
 
-    // 获取回复列表
     const replyRes = await getFeedbackReplyList(feedbackId)
 
-    // 设置聊天记录
     chatRecords.value = (replyRes.data || []).map(item => ({
       id: String(item.id || ''),
       isAdmin: Number(item.isAdmin) || 0,
@@ -597,7 +566,6 @@ const openDetailDialog = async (row) => {
 
     detailVisible.value = true
 
-    // 滚动到底部
     nextTick(() => {
       const chatArea = document.querySelector('.chat-area')
       if (chatArea) chatArea.scrollTop = chatArea.scrollHeight
@@ -624,7 +592,6 @@ const submitReply = async () => {
     return
   }
 
-  // 保存当前工单信息，用于刷新
   const currentFeedback = { ...currentDetailFeedback.value }
   
   loading.value = true
@@ -647,7 +614,6 @@ const submitReply = async () => {
     ElMessage.success('回复工单成功')
     replyForm.content = ''
     
-    // 刷新详情和列表
     await openDetailDialog(currentFeedback)
     getFeedbackList()
   } catch (error) {
@@ -673,7 +639,6 @@ const submitReply = async () => {
   gap: 10px;
 }
 
-/* 列表中的用户信息样式 */
 .user-info {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,5 @@
 <template>
   <div class="buyer-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -84,21 +83,18 @@
               </div>
             </div>
 
-            <!-- 选中指示器 -->
             <div class="select-indicator" v-if="isSelectable">
               <van-icon name="success" v-if="selectedId === item.id" />
             </div>
           </div>
         </div>
 
-        <!-- 底部提示 -->
         <div class="list-footer">
           <p>最多可保存 10 个购票人信息</p>
         </div>
       </div>
     </div>
 
-    <!-- 浮动添加按钮（列表不为空时显示） -->
     <div class="fab-add" v-if="buyerList.length > 0" @click="goAddBuyer">
       <van-icon name="plus" />
     </div>
@@ -120,7 +116,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-// 导入正确的购票人API
 import { getBuyerList, deleteBuyer } from '@/api/mobile/buyer'
 
 const router = useRouter()
@@ -133,24 +128,19 @@ const deleteId = ref(null)
 const selectedId = ref(null)
 const isSelectable = ref(false)
 
-// 身份证号脱敏
 const maskIdCard = (idCard) => {
   if (!idCard) return ''
-  // 18位身份证：前6位 + **** + 后4位
   if (idCard.length === 18) {
     return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
   }
-  // 15位身份证：前6位 + **** + 后3位
   return idCard.replace(/(\d{6})\d{6}(\d{3})/, '$1******$2')
 }
 
-// 手机号脱敏
 const maskPhone = (phone) => {
   if (!phone) return ''
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 }
 
-// 获取审核状态文本
 const getAuditText = (status) => {
   const statusMap = {
     0: '待审核',
@@ -183,11 +173,9 @@ const getAuditClass = (status) => {
 // 加载购票人列表
 const loadBuyerList = async () => {
   try {
-    // 调用正确的接口（无需传参，接口内部已处理用户信息）
     const res = await getBuyerList({userId: userStore.id})
     if (res.code === 0) {
       buyerList.value = res.data || []
-      // 如果有默认购票人，选中它
       const defaultBuyer = buyerList.value.find(item => item.isDefault === 1)
       if (defaultBuyer) {
         selectedId.value = defaultBuyer.id
@@ -196,7 +184,6 @@ const loadBuyerList = async () => {
       ElMessage.error(res.msg || '获取购票人列表失败')
     }
   } catch (error) {
-    // 捕获接口内部的验证错误
     if (error.message) {
       ElMessage.error(error.message)
     } else {
@@ -206,36 +193,28 @@ const loadBuyerList = async () => {
   }
 }
 
-// 返回上一页
 const goBack = () => {
   router.push({ name: 'Mine' })
 }
 
-// 选择购票人（如果是从下单页进入）
 const selectBuyer = (item) => {
   if (isSelectable.value) {
     selectedId.value = item.id
-    // 可以在这里触发回调或存储选择
-    // 如果是从订单确认页跳转过来，可通过路由返回选择结果
     if (route.query.from === 'order') {
-      // 存储选中的购票人信息到本地或pinia
       userStore.setSelectedBuyer(item)
       router.go(-1)
     }
   }
 }
 
-// 跳转新增
 const goAddBuyer = () => {
   router.push({ name: 'BuyerAdd' })
 }
 
-// 跳转编辑
 const goEditBuyer = (id) => {
   router.push({ name: 'BuyerEdit', params: { id } })
 }
 
-// 删除购票人
 const handleDeleteBuyer = (id) => {
   deleteId.value = id
   showDeleteDialog.value = true
@@ -245,7 +224,6 @@ const confirmDelete = async () => {
   if (!deleteId.value) return
   
   try {
-    // 调用正确的删除接口（仅传ID）
     const res = await deleteBuyer({id: deleteId.value,userId: userStore.id})
     if (res.code === 0) {
       ElMessage.success('删除成功')
@@ -254,7 +232,6 @@ const confirmDelete = async () => {
       ElMessage.error(res.msg || '删除失败')
     }
   } catch (error) {
-    // 捕获接口内部的验证错误
     if (error.message) {
       ElMessage.error(error.message)
     } else {
@@ -269,7 +246,6 @@ const confirmDelete = async () => {
 
 onMounted(() => {
   loadBuyerList()
-  // 判断是否从下单页进入（可选择购票人）
   isSelectable.value = route.query.selectable === 'true'
 })
 </script>
@@ -281,7 +257,6 @@ onMounted(() => {
   padding-bottom: 20px;
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: sticky;
   top: 0;

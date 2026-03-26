@@ -1,13 +1,11 @@
 <template>
   <div class="report-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>内容管理</el-breadcrumb-item>
       <el-breadcrumb-item>举报管理</el-breadcrumb-item>
     </el-breadcrumb>
 
-    <!-- 操作栏 -->
     <div class="operation-bar">
       <el-input
         v-model="searchReportId"
@@ -62,13 +60,10 @@
       <el-table-column prop="targetId" label="目标ID" width="100" />
       <el-table-column prop="userId" label="举报用户ID" width="200" />
       
-      <!-- 举报理由：其他只显示标签，点击弹窗查看完整内容 -->
       <el-table-column label="举报理由" min-width="100">
         <template #default="scope">
           <div style="display: flex; align-items: center; gap: 6px">
             <span>{{ getReportReasonName(scope.row.reportReason) }}</span>
-            
-            <!-- 只有理由=99才显示查看按钮 -->
             <el-button
               v-if="scope.row.reportReason === 99"
               type="text"
@@ -148,7 +143,7 @@
     >
     </el-pagination>
 
-    <!-- 处理弹窗（简化版：无删除接口） -->
+    <!-- 处理弹窗 -->
     <el-dialog
       v-model="handleDialogVisible"
       :title="getDialogTitle()"
@@ -182,7 +177,6 @@
           <span class="form-static-text">{{ getHandleStatusName(handleForm.handleStatus) }}</span>
         </el-form-item>
         
-        <!-- 简化：处理方式改为文本说明，不关联删除接口 -->
         <el-form-item 
           label="处置建议" 
           prop="handleSuggestion"
@@ -238,7 +232,6 @@ import {
   handleReport
 } from '@/api/report'
 
-// ========== 变量 ==========
 const loading = ref(false)
 const submitLoading = ref(false)
 const searchReportId = ref('')
@@ -251,7 +244,6 @@ const userStore = useUserStore()
 
 const reportList = ref([])
 
-// 处理弹窗（简化：改为handleSuggestion，无删除逻辑）
 const handleDialogVisible = ref(false)
 const handleFormRef = ref(null)
 const handleForm = reactive({
@@ -261,11 +253,10 @@ const handleForm = reactive({
   reportReason: '',
   customReason: '',
   handleStatus: '',
-  handleSuggestion: '', // 处置建议（仅记录，不执行）
+  handleSuggestion: '',
   handleNote: ''
 })
 
-// 校验规则（简化）
 const handleRules = reactive({
   handleSuggestion: [
     { required: true, message: '请选择处置建议', trigger: 'change' }
@@ -276,14 +267,12 @@ const handleRules = reactive({
   ]
 })
 
-// ========== 枚举 ==========
 const targetTypeMap = {1:'商品',2:'商品评论',3:'社区帖子',4:'社区帖子评论'}
 const reportReasonMap = {
   1:'违反法律规定',2:'色情低俗',3:'赌博诈骗',4:'人身攻击',5:'侵犯隐私',
   6:'垃圾广告',7:'引战',8:'刷屏/抢楼',9:'青少年不良',10:'谣言造谣',99:'其他'
 }
 const handleStatusMap = {0:'待处理',1:'已受理',2:'已驳回',3:'已处理'}
-// 处置建议枚举
 const handleSuggestionMap = {
   1: '建议删除违规内容',
   2: '建议警告发布者',
@@ -296,14 +285,12 @@ const getReportReasonName = (reason) => reportReasonMap[reason] || '未知理由
 const getHandleStatusName = (status) => handleStatusMap[status] || '未知状态'
 const getDialogTitle = () => `${getHandleStatusName(handleForm.handleStatus)}举报`
 
-// 时间格式化
 const formatTime = (timeStr) => {
   if (!timeStr) return '-'
   const date = new Date(timeStr)
   return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`
 }
 
-// ========== 查看自定义举报理由（弹窗） ==========
 const showCustomReason = (content) => {
   ElMessageBox.alert(content || '无内容', '自定义举报理由', {
     confirmButtonText: '确定',
@@ -312,7 +299,6 @@ const showCustomReason = (content) => {
   })
 }
 
-// ========== 获取列表 ==========
 const getReportList = async () => {
   loading.value = true
   try {
@@ -394,24 +380,18 @@ const submitHandle = async () => {
   })
 }
 
-// 执行处理（无删除接口，仅提交状态+建议+备注）
 const doHandle = async () => {
   submitLoading.value = true
   try {
-    // 构造请求体（适配现有后端DTO，仅传status和handleNote）
     const handleDTO = {
       status: handleForm.handleStatus,
-      // 如后端DTO无handleSuggestion字段，仅传备注（把建议写进备注）
       handleNote: `${handleForm.handleSuggestion ? `【处置建议：${handleSuggestionMap[handleForm.handleSuggestion]}】` : ''}${handleForm.handleNote}`
     }
-    // 调用API：路径参数+请求体
     const res = await handleReport(handleForm.id, handleDTO)
     if (res.code === 0) {
       ElMessage.success('操作成功')
       handleDialogVisible.value = false
       getReportList()
-      
-      // 提示手动处理
       if (handleForm.handleSuggestion === '1') {
         ElMessage.info(`请手动处理目标ID为${handleForm.targetId}的违规内容`)
       }

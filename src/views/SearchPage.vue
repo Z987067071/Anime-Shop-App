@@ -1,6 +1,5 @@
 <template>
   <div class="search-page">
-    <!-- 顶部搜索栏 - 悬浮固定 -->
     <div class="search-header" :class="{ 'is-scrolled': isScrolled }">
       <div class="search-bar-wrapper">
         <div class="back-btn" @click="handleCancel">
@@ -28,7 +27,6 @@
       </div>
     </div>
 
-    <!-- 搜索建议下拉层 -->
     <div class="search-suggestions" v-if="showSuggestions && !searchResult.length">
       <div class="suggestion-section" v-if="hotSearchList.length">
         <div class="section-title">
@@ -230,7 +228,6 @@ const router = useRouter()
 const route = useRoute()
 const searchInput = ref(null)
 
-// 核心状态
 const searchKeyword = ref('')
 const searchResult = ref([])
 const searchLoading = ref(false)
@@ -241,13 +238,11 @@ const recommendList = ref([])
 const showSuggestions = ref(false)
 const isScrolled = ref(false)
 
-// 瀑布流相关
 const leftColumnData = ref([])
 const rightColumnData = ref([])
 
-// 筛选相关
 const activeFilter = ref('default')
-const priceSort = ref('desc') // desc 或 asc
+const priceSort = ref('desc')
 const filters = [
   { key: 'default', label: '综合' },
   { key: 'sales', label: '销量' },
@@ -260,8 +255,6 @@ const pageNum = ref(1)
 const pageSize = 10
 const loadingMore = ref(false)
 const noMore = ref(false)
-
-// 动画标签
 const floatingTags = ref([
   { text: '手办', style: { top: '20%', left: '10%', animationDelay: '0s' } },
   { text: '周边', style: { top: '60%', left: '5%', animationDelay: '1s' } },
@@ -269,24 +262,19 @@ const floatingTags = ref([
   { text: '漫画原作', style: { top: '70%', right: '15%', animationDelay: '0.5s' } }
 ])
 
-// 计算属性：价格排序图标
 const priceSortIcon = computed(() => {
   return priceSort.value === 'desc' ? 'arrow-down' : 'arrow-up'
 })
 
-// ========== 方法定义 ==========
 
-// 处理图片加载失败
 const handleImgError = (e) => {
   e.target.src = ''
 }
 
-// 格式化价格
 const formatPrice = (price) => {
   return Number(price).toFixed(2)
 }
 
-// 格式化销量
 const formatSales = (count) => {
   if (count >= 10000) {
     return (count / 10000).toFixed(1) + '万'
@@ -294,7 +282,6 @@ const formatSales = (count) => {
   return count
 }
 
-// 分配瀑布流数据
 const distributeWaterfall = (data) => {
   const left = []
   const right = []
@@ -336,7 +323,6 @@ const handleSearch = async (keyword) => {
       searchResult.value = res.data.records || []
       distributeWaterfall(searchResult.value)
       
-      // 如果没有结果，加载推荐商品
       if (searchResult.value.length === 0) {
         loadRecommendations()
       }
@@ -436,14 +422,12 @@ const handleBlur = () => {
   }, 200)
 }
 
-// 跳转商品详情
 const goProductDetail = (productId) => {
   router.push({
     path: '/goods/detail/' + productId
   })
 }
 
-// ========== 搜索历史相关 ==========
 const addHistory = (keyword) => {
   historyList.value = historyList.value.filter(item => item !== keyword)
   historyList.value.unshift(keyword)
@@ -473,7 +457,6 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 10
 }
 
-// ========== 生命周期 ==========
 onMounted(() => {
   const history = localStorage.getItem('searchHistory')
   if (history) {
@@ -482,7 +465,6 @@ onMounted(() => {
   
   window.addEventListener('scroll', handleScroll)
   
-  // 自动聚焦
   nextTick(() => {
     searchInput.value?.focus()
   })
@@ -508,7 +490,6 @@ watch(
   padding-top: 56px;
 }
 
-/* 顶部搜索栏 - 玻璃拟态效果 */
 .search-header {
   position: fixed;
   top: 0;

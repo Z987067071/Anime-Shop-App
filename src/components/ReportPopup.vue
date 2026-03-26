@@ -1,5 +1,4 @@
 <template>
-  <!-- 底部弹出的举报弹窗 -->
   <van-popup 
     :show="show" 
     @update:show="handlePopupClose" 
@@ -40,11 +39,9 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, computed } from 'vue'
-import { showToast } from 'vant' // 改用vant的showToast，和你的request封装一致
-// 导入API并改名，避免方法名冲突
+import { showToast } from 'vant'
 import { submitReport as submitReportApi } from '@/api/mobile/report'
 
-// 接收父组件参数
 const props = defineProps({
   show: {
     type: Boolean,
@@ -62,10 +59,8 @@ const props = defineProps({
   }
 })
 
-// 定义事件
 const emit = defineEmits(['update:show', 'close', 'success'])
 
-// 举报理由枚举
 const reasonList = ref([
   { code: 1, desc: '违反法律规定' },
   { code: 2, desc: '色情低俗' },
@@ -80,24 +75,19 @@ const reasonList = ref([
   { code: 99, desc: '其他' }
 ])
 
-// 响应式数据
 const selectedReason = ref(null)
 const customReason = ref('')
 const submitting = ref(false)
 
-// 统一转为数字ID
 const targetIdNum = computed(() => {
   const id = props.targetId
   if (!id || isNaN(Number(id))) {
-    showToast('举报目标ID格式错误') // 改用vant的showToast
+    showToast('举报目标ID格式错误')
     return 0
   }
   return Number(id)
 })
 
-/**
- * 选择举报理由
- */
 const selectReason = (code) => {
   selectedReason.value = code
   if (code !== 99) {
@@ -105,9 +95,6 @@ const selectReason = (code) => {
   }
 }
 
-/**
- * 限制自定义理由长度
- */
 const limitTextLength = () => {
   if (customReason.value.length > 150) {
     customReason.value = customReason.value.substring(0, 150)
@@ -115,34 +102,23 @@ const limitTextLength = () => {
   }
 }
 
-/**
- * 处理弹窗关闭
- */
 const handlePopupClose = (newVal) => {
   resetForm()
   emit('update:show', newVal)
   emit('close')
 }
 
-/**
- * 重置表单
- */
 const resetForm = () => {
   selectedReason.value = null
   customReason.value = ''
   submitting.value = false
 }
 
-/**
- * 提交举报（最终适配版）
- */
 const handleSubmitReport = async () => {
-  // 1. 校验ID有效性
   if (targetIdNum.value === 0) {
     return
   }
 
-  // 2. 校验API方法是否存在
   if (typeof submitReportApi !== 'function') {
     showToast('举报接口初始化失败，请刷新页面重试')
     console.error('submitReportApi is not a function:', submitReportApi)
@@ -158,10 +134,8 @@ const handleSubmitReport = async () => {
       customReason: customReason.value.trim()
     }
 
-    // 调用API（你的request已自动携带Token，且直接返回response.data）
     const res = await submitReportApi(params)
-    
-    // 适配你的后端返回格式（假设成功code为0）
+
     if (res.code === 0) {
       showToast(res.msg || '举报提交成功')
       emit('success')
@@ -172,7 +146,6 @@ const handleSubmitReport = async () => {
       showToast(res.msg || '举报提交失败')
     }
   } catch (error) {
-    // 错误已在request拦截器中处理，这里只需兜底
     console.error('举报提交失败：', error)
   } finally {
     submitting.value = false

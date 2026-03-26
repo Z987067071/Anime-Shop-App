@@ -1,6 +1,5 @@
 <template>
   <div class="address-add-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -11,7 +10,6 @@
       </div>
     </header>
 
-    <!-- 主内容区 -->
     <div class="main-content">
       <!-- 地址表单卡片 -->
       <div class="form-card">
@@ -54,7 +52,7 @@
             />
           </div>
 
-          <!-- 地区选择 - 使用级联选择器 -->
+          <!-- 地区选择 -->
           <div class="form-item">
             <div class="item-label">
               <van-icon name="location-o" />
@@ -128,7 +126,6 @@
       />
     </van-popup>
 
-    <!-- 隐藏底部TabBar -->
     <div style="display: none"><TabBar /></div>
   </div>
 </template>
@@ -622,7 +619,6 @@ const onSubmit = async () => {
   padding-bottom: 40px;
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: sticky;
   top: 0;

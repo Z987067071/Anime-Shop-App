@@ -1,6 +1,5 @@
 <template>
   <div class="buyer-audit-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>票务管理</el-breadcrumb-item>
@@ -155,16 +154,13 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user';
-// 导入购票人审核API（需根据实际接口路径调整）
 import { 
   getBuyerAuditPage, 
   auditBuyer 
 } from '@/api/buyer'
 
-// 状态管理
 const loading = ref(false)
 const submitLoading = ref(false)
 const searchKeyword = ref('')
@@ -172,14 +168,9 @@ const auditStatus = ref('')
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-const user = useUserStore()
-
-// 购票人列表
 const buyerList = ref([])
-
-// 审核弹窗相关
 const auditDialogVisible = ref(false)
-const auditType = ref(1) // 1-通过 2-驳回
+const auditType = ref(1)
 const auditFormRef = ref(null)
 const auditForm = reactive({
   id: '',
@@ -188,7 +179,6 @@ const auditForm = reactive({
   auditRemark: ''
 })
 
-// 审核表单校验规则
 const auditRules = reactive({
   auditRemark: [
     { required: true, message: '请输入驳回理由', trigger: 'blur' },
@@ -196,13 +186,11 @@ const auditRules = reactive({
   ]
 })
 
-// 格式化身份证号（脱敏：110101********1234）
 const formatIdCard = (idCard) => {
   if (!idCard || idCard.length !== 18) return idCard || '-'
   return idCard.substring(0, 6) + '********' + idCard.substring(14)
 }
 
-// 格式化时间
 const formatTime = (timeStr) => {
   if (!timeStr) return '-'
   const date = new Date(timeStr)
@@ -258,7 +246,6 @@ const refreshList = () => {
 const openAuditDialog = (row, type) => {
   auditType.value = type
   auditDialogVisible.value = true
-  // 赋值表单
   Object.assign(auditForm, {
     id: row.id,
     name: row.name,
@@ -283,8 +270,6 @@ const resetAuditForm = () => {
 // 提交审核
 const submitAudit = async () => {
   if (!auditFormRef.value) return
-
-  // 驳回时校验表单，通过时无需校验
   if (auditType.value === 2) {
     auditFormRef.value.validate(async (valid) => {
       if (!valid) return
@@ -295,7 +280,6 @@ const submitAudit = async () => {
   }
 }
 
-// 执行审核操作
 const doAudit = async () => {
   submitLoading.value = true
   try {

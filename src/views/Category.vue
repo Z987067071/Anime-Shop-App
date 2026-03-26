@@ -1,6 +1,5 @@
 <template>
   <div class="category-page">
-    <!-- 修复后的头部 -->
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
         <div class="back-btn" @click="router.back()">
@@ -263,7 +262,6 @@ onMounted(() => {
   flex-direction: column;
 }
 
-/* 修复后的头部 - 使用 flex 布局确保居中 */
 .glass-header {
   position: fixed;
   top: 0;

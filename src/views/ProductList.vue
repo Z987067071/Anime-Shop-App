@@ -1,6 +1,5 @@
 <template>
   <div class="product-list-page">
-    <!-- 导航栏：显示一级分类名称 -->
     <van-nav-bar 
       :title="categoryName" 
       left-arrow 
@@ -55,7 +54,6 @@
       </van-list>
     </van-pull-refresh>
 
-    <!-- 底部TabBar（按需添加） -->
     <TabBar v-if="showTabBar" />
   </div>
 </template>
@@ -66,27 +64,23 @@ import { useRoute, useRouter } from 'vue-router'
 import TabBar from '@/components/TabBar.vue'
 import { getProductListByFirstCategory } from '@/api/mobile/product'
 
-// 路由相关
 const route = useRoute()
 const router = useRouter()
 
-// 页面状态
-const loading = ref(false)       // 加载状态
-const refreshing = ref(false)    // 下拉刷新状态
-const finished = ref(false)      // 加载完成
-const productList = ref([])      // 商品列表
-const pageNum = ref(1)           // 当前页码
-const pageSize = ref(20)         // 页大小
-const totalPages = ref(0)        // 总页数
-const showTabBar = ref(true)     // 是否显示底部TabBar
+const loading = ref(false)
+const refreshing = ref(false)
+const finished = ref(false)
+const productList = ref([])
+const pageNum = ref(1)
+const pageSize = ref(20)
+const totalPages = ref(0)
+const showTabBar = ref(true)
 
-// 解析一级分类ID（从路由参数获取）
 const firstCategoryId = computed(() => {
   const id = route.query.firstCategoryId
   return id ? Number(id) : ''
 })
 
-// 一级分类名称（根据ID映射）
 const categoryName = computed(() => {
   const categoryMap = {
     1: '手办',
@@ -99,12 +93,10 @@ const categoryName = computed(() => {
   return categoryMap[firstCategoryId.value] || '商品列表'
 })
 
-// 图片加载失败兜底
 const handleImgError = (e) => {
   e.target.src = ''
 }
 
-// 跳商品详情页
 const goDetail = (id) => {
   router.push({
     name: 'GoodsDetail',
@@ -112,16 +104,14 @@ const goDetail = (id) => {
   })
 }
 
-// 核心：加载商品列表
+
 const loadProductList = async (isRefresh = false) => {
   if (loading.value) return
-  // 无分类ID直接返回
   if (!firstCategoryId.value) {
     finished.value = true
     return
   }
 
-  // 刷新时重置状态
   if (isRefresh) {
     pageNum.value = 1
     productList.value = []
@@ -131,26 +121,22 @@ const loadProductList = async (isRefresh = false) => {
 
   loading.value = true
   try {
-    // 调用按一级分类查询商品接口
     const res = await getProductListByFirstCategory(firstCategoryId.value, {
       pageNum: pageNum.value,
       pageSize: pageSize.value
     })
     
-    // 适配后端返回的code=0
     if (res.code === 0 && res.data) {
       const pageData = res.data
       const list = pageData.records || []
       totalPages.value = pageData.pages || 0
 
-      // 刷新：覆盖数据；加载更多：拼接数据
       if (isRefresh) {
         productList.value = list
       } else {
         productList.value = [...productList.value, ...list]
       }
 
-      // 判断是否加载到底
       finished.value = pageNum.value >= totalPages.value
     }
   } catch (error) {
@@ -178,7 +164,7 @@ const onLoad = () => {
   }
 }
 
-// 监听分类ID变化（切换分类时重新加载）
+// 监听分类ID变化
 watch(
   () => firstCategoryId.value,
   () => loadProductList(true),
@@ -187,7 +173,6 @@ watch(
 
 // 页面挂载时初始化
 onMounted(() => {
-  // 隐藏TabBar（可选，根据需求调整）
   // showTabBar.value = false
 })
 </script>
@@ -200,14 +185,12 @@ onMounted(() => {
   flex-direction: column;
 }
 
-/* 加载中样式 */
 .loading {
   text-align: center;
   padding: 40px 0;
   color: #999;
 }
 
-/* 商品列表容器 */
 .product-list {
   flex: 1;
   padding: 10px;

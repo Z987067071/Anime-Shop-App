@@ -1,6 +1,5 @@
 <template>
   <div class="publish-page">
-    <!-- 玻璃拟态导航栏 -->
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -15,7 +14,6 @@
     <main class="main-content" @scroll="handleScroll">
       <div class="form-container">
         <van-form @submit="onSubmit" class="custom-form">
-          <!-- 标题输入 -->
           <div class="input-card">
             <div class="input-label">
               <span class="label-icon">✏️</span>
@@ -120,7 +118,7 @@ const handleScroll = (e) => {
   isScrolled.value = e.target.scrollTop > 50
 }
 
-// 图片上传处理（保持不变）
+
 const afterRead = async (file) => {
   try {
     const loadingToast = showToast({
@@ -156,12 +154,10 @@ const afterRead = async (file) => {
   }
 }
 
-// 删除图片（保持不变）
 const onDeleteImage = (index) => {
   postForm.value.imageUrlsList.splice(index, 1)
 }
 
-// 提交发布（新增用户信息校验）
 const onSubmit = async () => {
   if (!postForm.value.userId) {
     showToast({ type: 'warning', message: '请先登录' })
@@ -227,7 +223,6 @@ onMounted(() => {
   padding-bottom: 60px;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: fixed;
   top: 0;

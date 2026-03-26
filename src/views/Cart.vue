@@ -1,6 +1,5 @@
 <template>
   <div class="cart-page">
-    <!-- 顶部导航 - 玻璃拟态 -->
     <div class="cart-header" :class="{ 'header-scrolled': isScrolled }">
       <div class="header-content">
         <div class="header-left" @click="$router.push('/')">
@@ -22,7 +21,6 @@
       </div>
     </div>
 
-    <!-- 空状态 - 二次元风格 -->
     <div v-if="!cartStore.cartList.length" class="empty-state">
       <div class="empty-illustration">
         <div class="cart-icon">
@@ -48,9 +46,7 @@
       </div>
     </div>
 
-    <!-- 购物车列表 -->
     <div v-else class="cart-container">
-      <!-- 店铺分组 -->
       <div class="shop-group">
         <div class="shop-header">
           <van-checkbox v-model="allSelectedProxy" class="shop-checkbox">
@@ -67,7 +63,6 @@
           </div>
         </div>
 
-        <!-- 商品列表 -->
         <div class="goods-list">
           <div 
             v-for="item in cartStore.cartList" 
@@ -132,7 +127,6 @@
                 </div>
               </div>
 
-              <!-- 管理模式：删除按钮 -->
               <div class="item-delete" v-else @click="handleDelete(item.id)">
                 <van-icon name="delete-o" />
                 <span>删除</span>
@@ -142,11 +136,9 @@
         </div>
       </div>
 
-      <!-- 底部安全区域 -->
       <div class="safe-area"></div>
     </div>
 
-    <!-- 底部结算栏 - 悬浮玻璃效果 -->
     <div class="settlement-bar" v-if="cartStore.cartList.length">
       <div class="bar-content">
         <div class="bar-left">
@@ -186,7 +178,6 @@
       </div>
     </div>
 
-    <!-- 删除确认弹窗 -->
     <van-dialog
       v-model:show="showDeleteDialog"
       title="确认删除"
@@ -214,7 +205,6 @@ const router = useRouter()
 const userStore = useUserStore()
 const cartStore = useCartStore()
 
-// 状态
 const isManaging = ref(false)
 const isScrolled = ref(false)
 const showDeleteDialog = ref(false)
@@ -330,7 +320,6 @@ const goDetail = (goodsId) => {
 // 结算
 const handleSubmit = () => {
   if (isManaging.value) {
-    // 管理模式下删除选中的
     const ids = cartStore.cartList
       .filter(item => item.checked)
       .map(item => item.id)
@@ -390,7 +379,6 @@ const handleImgError = (e) => {
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-/* 顶部导航 - 玻璃拟态 */
 .cart-header {
   position: fixed;
   top: 0;

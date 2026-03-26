@@ -1,6 +1,5 @@
 <template>
   <div class="comic-con-page">
-    <!-- 顶部导航栏 - 玻璃拟态效果 -->
     <div class="nav-header" :class="{ 'is-scrolled': isScrolled }">
       <div class="nav-content">
         <div class="back-btn" @click="$router.back()">
@@ -63,7 +62,6 @@
       <p class="empty-subtitle">去看看其他城市的漫展吧 ~</p>
     </div>
 
-    <!-- 瀑布流漫展列表 -->
     <div class="waterfall-container" v-else>
       <div class="waterfall-column" ref="leftColumn">
         <div 
@@ -79,11 +77,9 @@
               loading="lazy"
               @error="handleImgError"
             />
-            <!-- 状态角标 -->
             <div class="status-badge" :class="getStatusClass(item)">
               {{ getStatusText(item) }}
             </div>
-            <!-- 收藏按钮 -->
             <div class="fav-btn" @click.stop="toggleFav(item)">
               <van-icon :name="item.isFav ? 'like' : 'like-o'" :color="item.isFav ? '#ff2442' : '#fff'" size="18" />
             </div>
@@ -92,7 +88,6 @@
           <div class="card-content">
             <h3 class="card-title">{{ item.productName }}</h3>
             
-            <!-- 标签组 -->
             <div class="tag-group" v-if="item.tag">
               <span 
                 v-for="(tag, idx) in item.tag.split(',').slice(0, 2)" 
@@ -103,7 +98,6 @@
               </span>
             </div>
 
-            <!-- 时间地点 -->
             <div class="meta-info">
               <div class="meta-item" v-if="item.venue">
                 <van-icon name="location-o" size="12" color="#999" />
@@ -111,7 +105,6 @@
               </div>
             </div>
 
-            <!-- 价格和库存 -->
             <div class="card-footer">
               <div class="price-section">
                 <span class="price-symbol">¥</span>
@@ -189,14 +182,12 @@
       </div>
     </div>
 
-    <!-- 加载更多 -->
     <div class="load-more" v-if="comicConList.length > 0">
       <van-loading v-if="loading" size="20px" color="#ff2442" />
       <span v-else-if="finished">已经到底啦 ~</span>
       <span v-else @click="onLoad">加载更多</span>
     </div>
 
-    <!-- 返回顶部 -->
     <van-back-top target=".comic-con-page" bottom="30" right="20" visibility-height="200">
       <div class="back-top-btn">
         <van-icon name="arrow-up" color="#ff2442" />
@@ -214,10 +205,8 @@ import { searchProductList } from '@/api/mobile/product';
 
 const router = useRouter();
 
-// 默认封面图
 const defaultCover = 'https://www.helloimg.com/i/2026/01/27/69783066c0b56.png';
 
-// 状态管理
 const loading = ref(false);
 const finished = ref(false);
 const pageNum = ref(1);
@@ -226,11 +215,9 @@ const comicConList = ref([]);
 const isScrolled = ref(false);
 const showSearch = ref(false);
 
-// 筛选状态
 const currentCity = ref('all');
 const currentStatus = ref('all');
 
-// 城市列表
 const cityList = [
   { label: '全部', value: 'all' },
   { label: '上海', value: '上海' },
@@ -244,7 +231,6 @@ const cityList = [
   { label: '重庆', value: '重庆' },
 ];
 
-// 状态筛选
 const statusList = [
   { label: '全部', value: 'all' },
   { label: '即将开售', value: 'upcoming' },
@@ -252,7 +238,6 @@ const statusList = [
   { label: '即将开展', value: 'opening' },
 ];
 
-// 瀑布流数据分配
 const leftColumnData = computed(() => {
   return comicConList.value.filter((_, index) => index % 2 === 0);
 });
@@ -261,7 +246,6 @@ const rightColumnData = computed(() => {
   return comicConList.value.filter((_, index) => index % 2 === 1);
 });
 
-// 获取漫展状态
 const getStatusClass = (item) => {
   const now = new Date();
   const startTime = item.startTime ? new Date(item.startTime) : null;
@@ -288,19 +272,15 @@ const getStatusText = (item) => {
   return '热销中';
 };
 
-
-// 图片加载失败处理
 const handleImgError = (e) => {
   e.target.src = defaultCover;
 };
 
-// 切换收藏
 const toggleFav = (item) => {
   item.isFav = !item.isFav;
   showToast(item.isFav ? '已收藏' : '取消收藏');
 };
 
-// 城市筛选
 const handleCityFilter = (city) => {
   currentCity.value = city;
   pageNum.value = 1;
@@ -309,7 +289,6 @@ const handleCityFilter = (city) => {
   loadComicConList(false);
 };
 
-// 状态筛选
 const handleStatusFilter = (status) => {
   currentStatus.value = status;
   pageNum.value = 1;
@@ -318,7 +297,6 @@ const handleStatusFilter = (status) => {
   loadComicConList(false);
 };
 
-// 加载漫展列表
 const loadComicConList = async (isLoadMore = false) => {
   if (loading.value) return;
   
@@ -332,17 +310,15 @@ const loadComicConList = async (isLoadMore = false) => {
       pageSize: pageSize.value,
     };
 
-    // 添加城市筛选
     if (currentCity.value !== 'all') {
       params.city = currentCity.value;
     }
 
-    // 添加状态筛选逻辑（通过时间参数）
     const now = new Date();
     if (currentStatus.value === 'upcoming') {
-      params.saleStatus = 0; // 即将开售
+      params.saleStatus = 0;
     } else if (currentStatus.value === 'onsale') {
-      params.saleStatus = 1; // 热销中
+      params.saleStatus = 1;
     } else if (currentStatus.value === 'opening') {
       params.startTimeBegin = now.toISOString();
       params.startTimeEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -354,7 +330,6 @@ const loadComicConList = async (isLoadMore = false) => {
       const data = response.data || {};
       const records = data.records || [];
       
-      // 处理数据，添加收藏状态
       const processedRecords = records.map(item => ({
         ...item,
         isFav: false,
@@ -380,24 +355,20 @@ const loadComicConList = async (isLoadMore = false) => {
   }
 };
 
-// 加载更多
 const onLoad = () => {
   if (finished.value || loading.value) return;
   pageNum.value++;
   loadComicConList(true);
 };
 
-// 跳转详情
 const toDetail = (id) => {
   router.push({ path: `/goods/detail/${id}` });
 };
 
-// 监听滚动
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 10;
 };
 
-// 初始化
 onMounted(() => {
   loadComicConList(false);
   window.addEventListener('scroll', handleScroll);
@@ -411,7 +382,6 @@ onMounted(() => {
   padding-top: 60px;
 }
 
-/* 顶部导航栏 - 玻璃拟态 */
 .nav-header {
   position: fixed;
   top: 0;
@@ -461,7 +431,6 @@ onMounted(() => {
   color: #333;
 }
 
-/* 城市筛选栏 - 横向滚动 */
 .city-filter {
   position: fixed;
   top: 44px;

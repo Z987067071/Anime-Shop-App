@@ -43,7 +43,6 @@ const countdown = ref(900) // 15分钟=900秒
 const timer = ref(null)
 const timeout = ref(false)
 
-// 格式化倒计时（00:00）
 const countdownText = computed(() => {
   const minutes = Math.floor(countdown.value / 60)
   const seconds = countdown.value % 60
@@ -56,7 +55,6 @@ const getOrder = async () => {
   if (res.code === 0) {
     orderDetail.value = res.data
     timeout.value = res.data.timeout
-    // 计算剩余时间（如果未超时）
     if (!timeout.value) {
       const createTime = new Date(res.data.createTime).getTime()
       const now = Date.now()
@@ -64,7 +62,6 @@ const getOrder = async () => {
       countdown.value = remain > 0 ? remain : 0
       if (countdown.value <= 0) {
         timeout.value = true
-        // 自动取消订单（前端触发，后端定时任务兜底）
         await cancelOrder(orderId.value)
       }
     }

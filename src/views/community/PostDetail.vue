@@ -1,13 +1,11 @@
 <template>
   <div class="post-detail-page">
-    <!-- 玻璃拟态导航栏 -->
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
         <div class="back-btn" @click="router.back()">
           <van-icon name="arrow-left" />
         </div>
         <h1 class="site-title">帖子详情</h1>
-        <!-- 帖子举报按钮 -->
         <div class="report-btn" @click="openReportPopup(3, post.id)">
           <van-icon name="warning-o" size="20" color="#999" />
         </div>
@@ -164,7 +162,6 @@
                 <div class="comment-user">{{ item.userName || '匿名用户' }}</div>
                 <div class="comment-content">{{ item.content }}</div>
                 
-                <!-- 修复：移除多余的 parentId 判断，只要有图片就展示 -->
                 <van-grid 
                   v-if="item.imageUrls && item.imageUrls.length" 
                   :column-num="3" 
@@ -213,7 +210,6 @@
                   </div>
                 </div>
 
-                <!-- 回复列表：核心修复 item.replies → item.replyList -->
                 <div class="reply-list" v-if="item.replyList && item.replyList.length">
                   <div 
                     v-for="reply in item.replyList" 
@@ -231,8 +227,6 @@
                     </span>
                   </div>
                 </div>
-
-                <!-- 回复输入框 - 修复：每个评论独立的回复内容 -->
                 <div v-if="replyCommentId === item.id" class="reply-input-wrapper">
                   <van-field
                     v-model="replyContentMap[item.id]"
@@ -258,7 +252,6 @@
       </div>
     </main>
 
-    <!-- 引入举报弹窗组件 -->
     <ReportPopup 
       :show="showReportPopup"
       :target-type="reportTargetType"
@@ -285,7 +278,6 @@ const isScrolled = ref(false)
 
 const uploadLock = ref(false)
 
-// 帖子数据
 const post = reactive({
   id: '',
   userId: '',
@@ -303,7 +295,6 @@ const post = reactive({
   status: 0
 })
 
-// 评论相关 - 核心修复
 const commentList = ref([])
 const commentLoading = ref(false)
 const commentFinished = ref(false)
@@ -311,21 +302,17 @@ const commentPageNum = ref(1)
 const commentPageSize = ref(20)
 const commentContent = ref('')
 const replyCommentId = ref('')
-// 修复2：每个评论独立的回复内容（对象存储）
 const replyContentMap = ref({}) 
 const commentRef = ref(null)
 const likeLoading = ref(false)
 
-// van-uploader 相关
 const uploaderFiles = ref([])
 const commentImageUrls = ref([])
 
-// 举报弹窗相关数据
 const showReportPopup = ref(false)
-const reportTargetType = ref(0) // 3=社区帖子，4=社区帖子评论
+const reportTargetType = ref(0)
 const reportTargetId = ref(0)
 
-// 头像加载失败处理
 const handleAvatarError = (e) => {
   e.target.src = ''
 }
@@ -334,7 +321,6 @@ const handleScroll = (e) => {
   isScrolled.value = e.target.scrollTop > 50
 }
 
-// 打开举报弹窗
 const openReportPopup = (type, id) => {
   if (!id) {
     showToast('举报目标不存在')
@@ -345,13 +331,11 @@ const openReportPopup = (type, id) => {
   showReportPopup.value = true
 }
 
-// 举报成功回调
 const onReportSuccess = () => {
   showToast('举报提交成功')
   showReportPopup.value = false
 }
 
-// 加载帖子详情 + 同步最新评论数
 const loadPostDetail = async () => {
   try {
     const res = await communityPostApi.getPostDetail(postId)
@@ -381,7 +365,7 @@ const loadCommentReplies = async (commentId) => {
     })
     const replies = res.data?.records || []
     replies.forEach(reply => {
-      reply.isLiked = reply.isLiked || false // 修复：用isLiked而非liked
+      reply.isLiked = reply.isLiked || false
       reply.likeCount = Number(reply.likeCount || 0)
     })
     return replies
@@ -543,7 +527,7 @@ const beforeDeleteFile = (file) => {
   return true
 }
 
-// 发布评论 - 修复：同步后端评论数
+// 发布评论
 const publishComment = async () => {
   if (!userStore.token) {
     showToast('请先登录')
@@ -573,7 +557,6 @@ const publishComment = async () => {
       commentImageUrls.value = []
       
       await refreshComments()
-      // 不再本地+1，从后端获取最新值
     } else {
       showToast(res.msg || '发布失败')
     }
@@ -583,7 +566,7 @@ const publishComment = async () => {
   }
 }
 
-// 评论点赞 - 核心修复：强制刷新视图
+// 评论点赞
 const likeComment = async (commentItem) => {
   if (!userStore.token) {
     showToast('请先登录')
@@ -591,17 +574,14 @@ const likeComment = async (commentItem) => {
     return
   }
   
-  // 防止重复点击
   if (likeLoading.value) return
   likeLoading.value = true
   
   try {
     const res = await communityPostApi.toggleCommunityCommentLike(commentItem.id)
     if (res.code === 0 && res.data) {
-      // 强制覆盖本地数据
       commentItem.isLiked = res.data.isLiked
       commentItem.likeCount = res.data.likeCount
-      // 核心：强制刷新视图，解决样式不更新
       commentList.value = [...commentList.value]
       showToast(commentItem.isLiked ? '点赞成功' : '取消点赞')
     } else {

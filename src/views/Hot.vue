@@ -1,6 +1,5 @@
 <template>
   <div class="rank-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -46,7 +45,6 @@
         </div>
       </section>
 
-      <!-- 榜单类型切换 - 优化版本 -->
       <section class="rank-tabs-section">
         <div class="rank-tabs-container">
           <div class="rank-tabs" :class="{ 'can-scroll': canScroll }">

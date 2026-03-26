@@ -1,7 +1,5 @@
 <template>
-  <!-- 模板部分保持不变 -->
   <div class="comic-ticket-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>漫展票务</el-breadcrumb-item>
@@ -225,11 +223,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue' // 新增nextTick
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, ElIcon } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 
-// 导入API（重命名避免冲突）
 import {
   getTicketList as getTicketListApi,
   getComicConList,
@@ -240,7 +237,6 @@ import {
   deleteTicket
 } from '@/api/comic-con-ticket'
 
-// 状态变量
 const loading = ref(false)
 const submitLoading = ref(false)
 const comicConId = ref('')
@@ -248,10 +244,9 @@ const searchKeyword = ref('')
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-const comicConList = ref([]) // 漫展列表（用于下拉选择）
-const ticketList = ref([]) // 票种列表
+const comicConList = ref([])
+const ticketList = ref([])
 
-// 弹窗相关
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const ticketFormRef = ref(null)
@@ -266,10 +261,9 @@ const ticketForm = reactive({
   maxBuy: 5,
   saleStart: undefined,
   saleEnd: undefined,
-  status: '1' // 初始值为字符串"1"
+  status: '1'
 })
 
-// 表单校验规则
 const ticketRules = reactive({
   comicConId: [{ required: true, message: '请选择所属漫展', trigger: 'change' }],
   ticketName: [{ required: true, message: '请输入票种名称', trigger: 'blur' }],
@@ -293,7 +287,6 @@ const ticketRules = reactive({
   status: [{ required: true, message: '请选择票种状态', trigger: 'change' }]
 })
 
-// 时间格式化
 const formatTime = (timeStr) => {
   if (!timeStr) return '-'
   try {
@@ -305,7 +298,6 @@ const formatTime = (timeStr) => {
   }
 }
 
-// 加载漫展列表（适配无code的返回格式）
 const loadComicConList = async () => {
   try {
     const res = await getComicConList({ pageNum: 1, pageSize: 1000 })
@@ -396,12 +388,10 @@ const openAddDialog = () => {
   resetForm()
 }
 
-// 编辑弹窗（核心修复：状态回显）
+// 编辑弹窗
 const openEditDialog = async (row) => {
   isEdit.value = true
   dialogVisible.value = true
-  
-  // 先重置表单，避免缓存值干扰
   resetForm()
   
   try {
@@ -414,21 +404,14 @@ const openEditDialog = async (row) => {
       return
     }
 
-    // 调试日志：打印返回的status值和类型（方便排查）
-    console.log('票种详情status:', detail.status, '类型:', typeof detail.status)
-
-    // 核心修复1：强制转换status为字符串，且校验有效值
-    let statusStr = '1' // 默认值
+    let statusStr = '1'
     if (detail.status !== undefined && detail.status !== null) {
-      // 先转数字再转字符串，避免"00"/" 0"等异常值
       const statusNum = Number(detail.status)
-      // 只保留有效值：0/1/2
       if ([0, 1, 2].includes(statusNum)) {
         statusStr = statusNum.toString()
       }
     }
 
-    // 数据回显（强制类型转换）
     const formData = {
       id: detail.id ? detail.id.toString() : '',
       comicConId: detail.comicConId ? (typeof detail.comicConId === 'string' ? detail.comicConId : detail.comicConId.toString()) : '',
@@ -440,14 +423,12 @@ const openEditDialog = async (row) => {
       maxBuy: detail.maxBuy ? Number(detail.maxBuy) : 5,
       saleStart: detail.saleStart || undefined,
       saleEnd: detail.saleEnd || undefined,
-      status: statusStr // 使用处理后的字符串status
+      status: statusStr
     }
 
-    // 核心修复2：使用nextTick确保DOM更新后再赋值
     await nextTick()
     Object.assign(ticketForm, formData)
 
-    // 调试日志：打印最终赋值的status
     console.log('最终赋值status:', ticketForm.status)
 
   } catch (error) {
@@ -459,12 +440,10 @@ const openEditDialog = async (row) => {
 
 // 重置表单
 const resetForm = () => {
-  // 核心：先重置表单验证状态，再重置数据
   if (ticketFormRef.value) {
-    ticketFormRef.value.clearValidate() // 清除校验
-    ticketFormRef.value.resetFields() // 重置字段
+    ticketFormRef.value.clearValidate()
+    ticketFormRef.value.resetFields()
   }
-  // 强制重置所有字段
   Object.assign(ticketForm, {
     id: '',
     comicConId: '',
@@ -495,7 +474,6 @@ const submitForm = async () => {
       
       submitLoading.value = true
       try {
-        // 提交前：将字符串status转为数字
         const submitData = {
           ...ticketForm,
           productId: Number(ticketForm.productId),
@@ -518,7 +496,7 @@ const submitForm = async () => {
         if (res === '新增票种成功' || res === '修改票种成功' || res?.code === 0) {
           ElMessage.success(isEdit.value ? '编辑票种成功' : '新增票种成功')
           dialogVisible.value = false
-          getTicketList() // 重新加载列表
+          getTicketList()
         } else {
           ElMessage.error(isEdit.value ? '编辑票种失败' : '新增票种失败' + res.msg)
         }
@@ -552,7 +530,7 @@ const changeStatus = async (row, targetStatus) => {
     if (res === '状态修改成功' || res?.code === 0) {
       ElMessage.success(`票种已${statusText}`)
       row.status = targetStatus
-      getTicketList() // 重新加载列表，确保数据同步
+      getTicketList()
     } else {
       ElMessage.error(`修改票种状态失败：${res || '未知错误'}`)
     }

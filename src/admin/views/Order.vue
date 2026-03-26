@@ -32,7 +32,6 @@
         <template #prefix><el-icon><Phone /></el-icon></template>
       </el-input>
 
-      <!-- 新增：订单类型筛选 -->
       <el-select
         v-model="searchForm.orderType"
         placeholder="全部订单类型"
@@ -44,7 +43,6 @@
         <el-option label="漫展票务订单" :value="1" />
       </el-select>
 
-      <!-- 新增：核销状态筛选（仅票务订单显示） -->
       <el-select
         v-model="searchForm.verifyStatus"
         placeholder="核销状态"
@@ -99,7 +97,6 @@
       :default-sort="{ prop: 'createTime', order: 'descending' }"
     >
       <el-table-column prop="orderNo" label="订单编号" min-width="180" />
-      <!-- 新增：订单类型列 -->
       <el-table-column label="订单类型" width="120">
         <template #default="scope">
           <el-tag :type="scope.row.productType === 1 ? 'success' : 'primary'">
@@ -113,7 +110,6 @@
           {{ scope.row.consigneePhone ? scope.row.consigneePhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '无' }}
         </template>
       </el-table-column>
-      <!-- 新增：核销码列（仅票务订单显示） -->
       <el-table-column label="核销码" width="120" v-show="true">
         <template #default="scope">
           <span v-if="scope.row.orderType === 1">
@@ -122,7 +118,6 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <!-- 新增：核销状态列（仅票务订单显示） -->
       <<el-table-column label="核销状态" width="120" v-show="true">
         <template #default="scope">
           <span v-if="scope.row.orderType === 1">
@@ -241,7 +236,7 @@
       />
     </div>
 
-    <!-- 订单详情弹窗（新增票务信息） -->
+    <!-- 订单详情弹窗 -->
     <el-dialog
       v-model="detailDialogVisible"
       title="订单详情"
@@ -258,7 +253,6 @@
             <span class="value">{{ currentOrder.order.id }}</span>
             <span class="label" style="margin-left: 20px">下单用户ID：</span>
             <span class="value">{{ currentOrder.order.userId }}</span>
-            <!-- 新增：订单类型 -->
             <span class="label" style="margin-left: 20px">订单类型：</span>
             <span class="value">
               <el-tag :type="currentOrder.order.orderType === 1 ? 'primary' : 'info'">
@@ -280,7 +274,6 @@
             <span class="label" style="margin-left: 20px">支付方式：</span>
             <span class="value">{{ getPayTypeText(Number(currentOrder.order.payType)) }}</span>
           </div>
-          <!-- 新增：票务核销信息（仅票务订单显示） -->
           <div class="detail-row" style="margin-bottom: 10px" v-if="currentOrder.order.orderType === 1">
             <span class="label">核销状态：</span>
             <span class="value">
@@ -300,7 +293,6 @@
             <span class="value">{{ currentOrder.order.payTime || '未支付' }}</span>
             <span class="label" style="margin-left: 20px">更新时间：</span>
             <span class="value">{{ currentOrder.order.updateTime }}</span>
-            <!-- 新增：核销时间（仅票务订单） -->
             <span class="label" style="margin-left: 20px" v-if="currentOrder.order.orderType === 1">核销时间：</span>
             <span class="value" v-if="currentOrder.order.orderType === 1">{{ currentOrder.ticketRelations?.[0]?.verifyTime || '未核销' }}</span>
           </div>
@@ -318,7 +310,6 @@
             <span class="label" style="margin-left: 20px">订单备注：</span>
             <span class="value">{{ currentOrder.order.remark || '无' }}</span>
           </div>
-          <!-- 新增：票务实名信息（仅票务订单） -->
           <div class="detail-row" style="margin-bottom: 10px" v-if="currentOrder.order.orderType === 1">
             <span class="label">购票人实名：</span>
             <span class="value">{{ currentOrder.ticketRelations?.[0]?.realName || '未填写' }}</span>
@@ -390,7 +381,6 @@
       </template>
     </el-dialog>
 
-    <!-- 确认发货弹窗 -->
     <el-dialog
       v-model="deliveryDialogVisible"
       title="确认发货"
@@ -410,7 +400,6 @@
       </template>
     </el-dialog>
 
-    <!-- 新增：票务核销弹窗 -->
     <el-dialog
       v-model="verifyDialogVisible"
       title="漫展票务核销"
@@ -442,38 +431,33 @@ import {
   updateOrderStatus, 
   deleteOrder as deleteOrderApi 
 } from '@/api/order'
-// 新增：导入核销接口
 import { verifyTicket } from '@/api/ticket'
 
-// 加载状态
 const loading = ref(false)
-// 分页参数
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-// 筛选表单（新增orderType、verifyStatus）
 const searchForm = reactive({
   orderNo: '',
   consignee: '',
   consigneePhone: '',
   orderStatus: '',
   payStatus: '',
-  orderType: '', // 新增：订单类型 0=普通 1=票务
-  verifyStatus: '' // 新增：核销状态
+  orderType: '', // 订单类型 0=普通 1=票务
+  verifyStatus: ''
 })
 // 弹窗相关
 const detailDialogVisible = ref(false)
 const deliveryDialogVisible = ref(false)
-const verifyDialogVisible = ref(false) // 新增：核销弹窗
+const verifyDialogVisible = ref(false)
 const currentOrder = ref(null) 
 const currentDeliveryOrderId = ref('')
-const currentVerifyOrderId = ref('') // 新增：当前核销订单ID
+const currentVerifyOrderId = ref('')
 // 表单相关
 const deliveryForm = reactive({
   deliveryCompany: '',
   deliverySn: ''
 })
-// 新增：核销表单
 const verifyForm = reactive({
   verifyCode: '',
   verifyStaff: ''
@@ -491,9 +475,6 @@ onMounted(() => {
   getOrderList()
 })
 
-/**
- * 获取订单列表（适配新增筛选条件）
- */
 const getOrderList = async () => {
   loading.value = true
   try {
@@ -505,8 +486,8 @@ const getOrderList = async () => {
       consigneePhone: searchForm.consigneePhone.trim(),
       orderStatus: searchForm.orderStatus ? Number(searchForm.orderStatus) : undefined,
       payStatus: searchForm.payStatus ? Number(searchForm.payStatus) : undefined,
-      orderType: searchForm.orderType ? Number(searchForm.orderType) : undefined, // 新增
-      verifyStatus: searchForm.verifyStatus ? Number(searchForm.verifyStatus) : undefined // 新增
+      orderType: searchForm.orderType ? Number(searchForm.orderType) : undefined,
+      verifyStatus: searchForm.verifyStatus ? Number(searchForm.verifyStatus) : undefined
     }
 
     const res = await getOrderListApi(params)
@@ -519,7 +500,7 @@ const getOrderList = async () => {
     orderList.value = (res.data.records || []).map(item => ({
       ...item,
       id: String(item.id),
-      orderType: Number(item.orderType) || 0, // 新增：默认普通订单
+      orderType: Number(item.orderType) || 0,
       orderStatus: Number(item.orderStatus),
       payStatus: Number(item.payStatus),
       payType: Number(item.payType) || 0,
@@ -527,7 +508,6 @@ const getOrderList = async () => {
       payAmount: Number(item.payAmount) || 0,
       freightAmount: Number(item.freightAmount) || 0,
       discountAmount: Number(item.discountAmount) || 0,
-      // 新增：保留票务关联信息
       ticketRelations: item.ticketRelations || []
     }))
   } catch (error) {
@@ -538,9 +518,6 @@ const getOrderList = async () => {
   }
 }
 
-/**
- * 订单状态文本映射
- */
 const getOrderStatusText = (status) => {
   const statusMap = {
     0: '待付款',
@@ -553,9 +530,6 @@ const getOrderStatusText = (status) => {
   return statusMap[status] || '未知状态'
 }
 
-/**
- * 订单状态标签样式映射
- */
 const getOrderStatusTagType = (status) => {
   const typeMap = {
     0: 'warning',
@@ -568,9 +542,6 @@ const getOrderStatusTagType = (status) => {
   return typeMap[status] || 'default'
 }
 
-/**
- * 支付状态文本映射
- */
 const getPayStatusText = (status) => {
   const statusMap = {
     0: '未支付',
@@ -581,9 +552,6 @@ const getPayStatusText = (status) => {
   return statusMap[status] || '未知状态'
 }
 
-/**
- * 支付状态标签样式映射
- */
 const getPayStatusTagType = (status) => {
   const typeMap = {
     0: 'warning',
@@ -594,9 +562,6 @@ const getPayStatusTagType = (status) => {
   return typeMap[status] || 'default'
 }
 
-/**
- * 支付方式文本映射
- */
 const getPayTypeText = (type) => {
   const typeMap = {
     0: '未支付',
@@ -607,9 +572,6 @@ const getPayTypeText = (type) => {
   return typeMap[type] || '未知方式'
 }
 
-/**
- * 新增：核销状态文本映射
- */
 const getVerifyStatusText = (status) => {
   const statusMap = {
     0: '未核销',
@@ -619,9 +581,6 @@ const getVerifyStatusText = (status) => {
   return statusMap[status] || '未知状态'
 }
 
-/**
- * 新增：核销状态标签样式映射
- */
 const getVerifyStatusTagType = (status) => {
   const typeMap = {
     0: 'warning',
@@ -631,9 +590,6 @@ const getVerifyStatusTagType = (status) => {
   return typeMap[status] || 'default'
 }
 
-/**
- * 查看订单详情（新增票务信息适配）
- */
 const viewOrderDetail = async (row) => {
   loading.value = true
   try {
@@ -642,14 +598,12 @@ const viewOrderDetail = async (row) => {
       ElMessage.error(res.msg || '获取订单详情失败')
       return
     }
-    // 直接赋值完整的详情数据
     currentOrder.value = {
-      // 订单主信息
       order: {
         ...res.data.order,
         id: String(res.data.order.id),
         userId: String(res.data.order.userId),
-        orderType: Number(res.data.order.orderType) || 0, // 新增
+        orderType: Number(res.data.order.orderType) || 0,
         orderStatus: Number(res.data.order.orderStatus),
         payStatus: Number(res.data.order.payStatus),
         payType: Number(res.data.order.payType),
@@ -659,7 +613,6 @@ const viewOrderDetail = async (row) => {
         discountAmount: Number(res.data.order.discountAmount),
         isDelete: Number(res.data.order.isDelete)
       },
-      // 订单项
       orderItems: (res.data.orderItems || []).map(item => ({
         ...item,
         id: String(item.id),
@@ -670,7 +623,6 @@ const viewOrderDetail = async (row) => {
         totalPrice: Number(item.totalPrice),
         isDelete: Number(item.isDelete)
       })),
-      // 新增：票务关联信息
       ticketRelations: (res.data.ticketRelations || []).map(item => ({
         ...item,
         id: String(item.id),
@@ -688,9 +640,6 @@ const viewOrderDetail = async (row) => {
   }
 }
 
-/**
- * 显示发货弹窗
- */
 const showDeliveryDialog = (row) => {
   currentDeliveryOrderId.value = row.id
   deliveryForm.deliveryCompany = row.deliveryCompany || ''
@@ -698,9 +647,6 @@ const showDeliveryDialog = (row) => {
   deliveryDialogVisible.value = true
 }
 
-/**
- * 确认发货
- */
 const confirmDelivery = async () => {
   if (!deliveryForm.deliveryCompany.trim()) {
     ElMessage.warning('请输入快递公司')
@@ -733,30 +679,22 @@ const confirmDelivery = async () => {
   }
 }
 
-/**
- * 新增：显示核销弹窗
- */
 const showVerifyDialog = (row) => {
   currentVerifyOrderId.value = row.id
-  // 填充核销码
   verifyForm.verifyCode = row.ticketRelations?.[0]?.verifyCode || ''
   verifyForm.verifyStaff = ''
   verifyDialogVisible.value = true
 }
 
-/**
- * 新增：确认核销
- */
 const confirmVerify = async () => {
   try {
-    // 表单校验
     await verifyFormRef.value.validate()
     
     loading.value = true
     const res = await verifyTicket({
       verifyCode: verifyForm.verifyCode,
       verifyStaff: verifyForm.verifyStaff.trim(),
-      verifyIp: '127.0.0.1' // 前端可通过IP工具获取，毕设固定即可
+      verifyIp: '127.0.0.1'
     })
     
     if (res.code !== 0) {
@@ -766,12 +704,11 @@ const confirmVerify = async () => {
     
     ElMessage.success('票务核销成功')
     verifyDialogVisible.value = false
-    // 更新订单状态为已完成
     await updateOrderStatus({
       id: currentVerifyOrderId.value,
       orderStatus: 3
     })
-    getOrderList() // 刷新列表
+    getOrderList()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('核销失败：', error)
@@ -782,9 +719,6 @@ const confirmVerify = async () => {
   }
 }
 
-/**
- * 单个取消订单
- */
 const cancelSingleOrder = async (id) => {
   try {
     await ElMessageBox.confirm(
@@ -813,9 +747,6 @@ const cancelSingleOrder = async (id) => {
   }
 }
 
-/**
- * 删除订单
- */
 const deleteOrder = async (id) => {
   try {
     await ElMessageBox.confirm(
@@ -841,9 +772,6 @@ const deleteOrder = async (id) => {
   }
 }
 
-/**
- * 新增：重置筛选条件
- */
 const resetSearch = () => {
   Object.assign(searchForm, {
     orderNo: '',

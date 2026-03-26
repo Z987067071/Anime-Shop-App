@@ -1,6 +1,5 @@
 <template>
   <div class="feedback-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -238,7 +237,6 @@ onMounted(() => {
   padding-bottom: 20px;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: sticky;
   top: 0;

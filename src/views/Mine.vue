@@ -1,6 +1,5 @@
 <template>
   <div class="page">
-    <!-- 头部导航 - 玻璃拟态 -->
     <header class="glass-header">
       <div class="header-content">
         <h1 class="page-title">个人中心</h1>
@@ -15,7 +14,6 @@
       </div>
     </header>
 
-    <!-- 用户信息卡片 - Hpoi风格 -->
     <div class="user-section">
       <div class="user-card">
         <div class="card-bg">
@@ -41,7 +39,6 @@
           
           <div class="info-section">
             <div class="name-row">
-              <!-- 点击用户名弹出修改框 -->
               <span class="name name-editable" @click="openNicknameDialog">
                 {{ user.username || '未登录' }}
                 <van-icon name="edit" class="edit-icon" />
@@ -75,7 +72,6 @@
         </div>
       </div>
 
-      <!-- 资产卡片 - B站会员购风格 -->
       <div class="assets-card">
         <div class="assets-header">
           <span class="assets-title">我的资产</span>
@@ -116,7 +112,6 @@
       </div>
     </div>
 
-    <!-- 功能菜单 - B站风格 -->
     <div class="menu-section">
       <div class="menu-group">
         <div class="group-title">我的订单</div>
@@ -255,7 +250,6 @@
       </div>
     </van-action-sheet>
 
-    <!-- 修改用户名弹窗 - B站风格 -->
     <van-dialog
       v-model:show="nicknameDialogVisible"
       title="修改昵称"
@@ -341,21 +335,18 @@ const router = useRouter()
 const showAbout = ref(false)
 const user = useUserStore()
 
-// 订单数量（模拟数据）- 更新为5个状态
 const orderCount = ref({
-  all: 0,          // 全部订单
-  pending: 0,      // 待付款 (status: 0)
-  unshipped: 0,    // 待发货 (status: 1)
-  shipping: 0,     // 待收货 (status: 2)
-  afterSale: 0     // 售后 (status: 5)
+  all: 0,
+  pending: 0,
+  unshipped: 0,
+  shipping: 0,
+  afterSale: 0
 })
 
-// 头像上传相关
 const avatarDialogVisible = ref(false)
 const previewUrl = ref('')
 const uploadFile = ref(null)
 
-// 修改用户名相关
 const nicknameDialogVisible = ref(false)
 const newNickname = ref('')
 const nicknameError = ref('')
@@ -437,21 +428,17 @@ const confirmAvatarChange = async () => {
   }
 }
 
-// ========== 修改用户名功能 ==========
-
 const openNicknameDialog = () => {
   if (!user.token) {
     ElMessage.info('请先登录')
     router.replace('/login')
     return
   }
-  // 初始化输入框为当前用户名
   newNickname.value = user.username || ''
   nicknameError.value = ''
   nicknameDialogVisible.value = true
 }
 
-// 验证昵称
 const validateNickname = (nickname) => {
   if (!nickname || nickname.trim().length === 0) {
     return '昵称不能为空'
@@ -470,16 +457,13 @@ const validateNickname = (nickname) => {
   return ''
 }
 
-// 对话框关闭前处理
 const handleConfirmNickname = async () => {
-  // 验证
   const error = validateNickname(newNickname.value)
   if (error) {
     nicknameError.value = error
-    return // 不关闭对话框，因为没调 close，按钮不会转圈
+    return
   }
   
-  // 检查是否与当前昵称相同
   if (newNickname.value.trim() === user.username) {
     ElMessage.info('新昵称与当前昵称相同')
     nicknameDialogVisible.value = false
@@ -546,14 +530,12 @@ function onLogout () {
 </script>
 
 <style scoped>
-/* ===== 基础样式 ===== */
 .page {
   background: #f5f7fa;
   min-height: 100vh;
   padding-bottom: 80px;
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: fixed;
   top: 0;

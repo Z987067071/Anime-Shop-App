@@ -1,6 +1,5 @@
 <template>
   <div class="buyer-add-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -68,7 +67,6 @@
       </div>
     </div>
 
-    <!-- 隐藏底部TabBar -->
     <div style="display: none"><TabBar /></div>
   </div>
 </template>
@@ -84,21 +82,18 @@ import TabBar from '@/components/TabBar.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
-// 修复：添加 userId 字段（当前登录用户ID）
 const form = ref({
   name: '',
   idCard: '',
   userId: userStore.id
 })
 
-// 返回购票人列表页
 const goBack = () => {
   router.push({ name: 'BuyerList' })
 }
 
 // 提交表单
 const onSubmit = async () => {
-  // 基础校验
   if (!form.value.name.trim()) {
     ElMessage.warning('请输入购票人真实姓名')
     return
@@ -117,15 +112,13 @@ const onSubmit = async () => {
     return
   }
 
-  // 新增：校验用户ID是否存在
   if (!form.value.userId) {
     ElMessage.error('用户未登录，请先登录')
-    router.push({ name: 'Login' }) // 跳转到登录页
+    router.push({ name: 'Login' })
     return
   }
 
   try {
-    // 调用添加接口（自动携带userId）
     const res = await addBuyer(form.value)
     if (res.code === 0) {
       ElMessage.success('购票人信息添加成功')
@@ -134,7 +127,6 @@ const onSubmit = async () => {
       ElMessage.error(res.msg || '添加失败，请稍后重试')
     }
   } catch (error) {
-    // 捕获接口内部的验证错误（如身份证格式、姓名为空）
     if (error.message) {
       ElMessage.error(error.message)
     } else {
@@ -152,7 +144,6 @@ const onSubmit = async () => {
   padding-bottom: 40px;
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: sticky;
   top: 0;

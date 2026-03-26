@@ -1,6 +1,5 @@
 <template>
   <div class="address-edit-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -54,7 +53,7 @@
             />
           </div>
 
-          <!-- 地区选择 - 级联选择器 -->
+          <!-- 地区选择-->
           <div class="form-item">
             <div class="item-label">
               <van-icon name="location-o" />
@@ -128,7 +127,6 @@
       />
     </van-popup>
 
-    <!-- 隐藏底部TabBar -->
     <div style="display: none"><TabBar /></div>
   </div>
 </template>
@@ -169,9 +167,7 @@ const form = ref({
   userId: userStore.id
 })
 
-// 省市区数据（与添加页面相同）
 const regionOptions = [
-  // 直辖市
   {
     text: '北京市',
     value: '北京市',
@@ -661,7 +657,6 @@ onMounted(() => {
   padding-bottom: 40px;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: sticky;
   top: 0;

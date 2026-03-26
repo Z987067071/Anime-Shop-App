@@ -1,6 +1,5 @@
 <template>
   <div class="admin-home-index">
-    <!-- 面包屑增加边框 -->
     <el-breadcrumb 
       separator="/" 
       style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px"
@@ -11,7 +10,6 @@
 
     <div class="content">
       <h2>后台首页</h2>
-      <!-- 卡片增加边框+阴影，调整间距 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-card class="card" border shadow="hover">
@@ -43,7 +41,6 @@
 </template>
 
 <script setup>
-// 可后续对接接口获取真实统计数据
 </script>
 
 <style scoped>
@@ -55,15 +52,13 @@
   margin-top: 20px;
 }
 
-/* 卡片样式强化：增加边框、阴影、内边距 */
 .card {
-  border: 1px solid #ebeef5; /* 浅灰边框 */
+  border: 1px solid #ebeef5;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05); /* 柔和阴影 */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   padding: 20px;
-  transition: all 0.3s; /*  hover 过渡 */
+  transition: all 0.3s;
 }
-/* 卡片 hover 效果 */
 .card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }

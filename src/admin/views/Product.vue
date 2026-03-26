@@ -1,6 +1,5 @@
 <template>
   <div class="product-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>商品</el-breadcrumb-item>
@@ -251,12 +250,9 @@ const pageSize = ref(10)
 const total = ref(0)
 const user = useUserStore()
 
-// 分类列表
 const categoryList = ref([])
-// 商品列表
 const productList = ref([])
 
-// 弹窗相关
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const productFormRef = ref(null)
@@ -276,7 +272,6 @@ const productForm = reactive({
 })
 const realImageUrls = ref([]); 
 
-// 表单校验规则
 const productRules = reactive({
   productName: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
   categoryId: [{ required: true, message: '请选择所属分类', trigger: 'change' }],
@@ -354,7 +349,6 @@ const handleImageRemove = (file, fileList) => {
   }))
 }
 
-// 格式化时间
 const formatTime = (timeStr) => {
   if (!timeStr) return '-'
   const date = new Date(timeStr)
@@ -453,7 +447,6 @@ const openEditDialog = async (row) => {
   isEdit.value = true
   dialogVisible.value = true
   try {
-    // 获取商品详情
     const res = await getProductDetail(row.id)
     if (res.code === 0) {
       const detail = res.data

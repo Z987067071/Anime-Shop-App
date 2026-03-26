@@ -1,6 +1,5 @@
 <template>
   <div class="order-page">
-    <!-- 顶部导航栏 -->
     <van-nav-bar
       title="我的订单"
       left-arrow
@@ -262,7 +261,7 @@ const orderList = ref([])
 const loading = ref(false)
 const finished = ref(false)
 const refreshing = ref(false)
-const isFirstLoad = ref(true)  // 标记是否首次加载
+const isFirstLoad = ref(true)
 let page = 1
 const pageSize = 10
 
@@ -494,7 +493,6 @@ const buyAgain = async (orderId) => {
       const productId = item.productId
       const buyNum = item.quantity
 
-      // 4.1 校验商品状态和库存
       const productRes = await getMobileProductDetail(productId)
       if (productRes.code !== 0 || !productRes.data) {
         failMsg += `商品【${item.productName}】不存在；`
@@ -502,24 +500,20 @@ const buyAgain = async (orderId) => {
       }
       const product = productRes.data.product
 
-      // 4.2 校验商品是否上架
       if (product.status !== 1) {
         failMsg += `商品【${item.productName}】已下架；`
         continue
       }
 
-      // 4.3 校验库存
       if (product.stock < buyNum) {
         failMsg += `商品【${item.productName}】库存不足（剩余${product.stock}件）；`
         continue
       }
 
-      // 4.4 调用购物车Store添加商品
       await cartStore.addToCart(productId, buyNum)
       successCount++
     }
 
-    // 5. 结果提示
     if (successCount > 0) {
       let tipMsg = `成功将${successCount}件商品加入购物车`
       if (failMsg) {
@@ -527,7 +521,6 @@ const buyAgain = async (orderId) => {
         showToast(tipMsg)
       } else {
         showSuccessToast(tipMsg)
-        // 可选：跳转到购物车页
         // router.push('/cart')
       }
     } else {
@@ -537,12 +530,10 @@ const buyAgain = async (orderId) => {
     console.error('再次购买失败：', error)
     showFailToast(error.message || '加入购物车失败，请稍后重试')
   } finally {
-    // 关闭加载提示
     closeToast(loadingToast)
   }
 }
 
-// 申请售后
 const applyRefund = (orderId) => {
   // router.push(`/order/refund/${orderId}`)
   showToast('没有售后噢,期待未来开发')
@@ -571,7 +562,6 @@ const deleteOrder = (orderId) => {
 // 重新加入购物车
 const addToCart = (orderId) => {
   showToast('已将商品重新加入购物车')
-  // 实际开发：调用加购接口
 }
 
 // 去购物
@@ -584,7 +574,7 @@ const viewRefundProgress = (orderId) => {
   // router.push(`/order/refund/progress/${orderId}`)
 }
 
-// 取消售后（新增）
+// 取消售后
 const cancelRefund = (orderId) => {
   showConfirmDialog({
     title: '提示',
@@ -595,7 +585,7 @@ const cancelRefund = (orderId) => {
   })
 }
 
-// 页面挂载 - 只加载一次
+// 页面挂载
 onMounted(() => {
   const status = route.query.status
   if (status !== undefined && status !== null && status !== '') {

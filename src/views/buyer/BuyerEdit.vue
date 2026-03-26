@@ -1,6 +1,5 @@
 <template>
   <div class="buyer-edit-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -82,8 +81,6 @@
         </button>
       </div>
     </div>
-
-    <!-- 隐藏底部TabBar -->
     <div style="display: none"><TabBar /></div>
   </div>
 </template>
@@ -124,7 +121,6 @@ const loadBuyerDetail = async () => {
     return
   }
   
-  // 校验用户ID
   if (!form.value.userId) {
     ElMessage.error('用户未登录，请先登录')
     router.push({ name: 'Login' })
@@ -132,11 +128,9 @@ const loadBuyerDetail = async () => {
   }
 
   try {
-    // 调用详情接口（传userId和buyerId）
     const res = await getBuyerDetail({id: buyerId,userId: userStore.id})
     if (res.code === 0 && res.data) {
       buyerDetail.value = res.data
-      // 回显表单数据
       form.value.name = res.data.name
       form.value.idCard = res.data.idCard
     } else {
@@ -166,7 +160,6 @@ const onSubmit = async () => {
     return
   }
   
-  // 身份证格式校验（仅未审核的需要校验）
   if (buyerDetail.value.auditStatus !== 1) {
     const idCardReg = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
     if (!idCardReg.test(idCard)) {
@@ -203,7 +196,6 @@ onMounted(() => {
   padding-bottom: 40px;
 }
 
-/* ===== 复用新增页面的样式 ===== */
 .glass-header {
   position: sticky;
   top: 0;

@@ -1,5 +1,4 @@
 <template>
-  <!-- 移除 route 属性，手动控制跳转和选中状态 -->
   <van-tabbar v-model="active" active-color="#ff6f91">
     <van-tabbar-item icon="home-o" @click="switchTab('/')">首页</van-tabbar-item>
     <van-tabbar-item icon="apps-o" @click="switchTab('/category')">分类</van-tabbar-item>
@@ -53,7 +52,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 确保TabBar组件自身高度正常 */
 :deep(.van-tabbar) {
   height: 50px;
   line-height: 50px;

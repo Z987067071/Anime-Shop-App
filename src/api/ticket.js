@@ -9,7 +9,7 @@ export function verifyTicket(data) {
   })
 }
 
-// 分页查询核销日志（可选，毕设加分项）
+// 分页查询核销日志
 export function getVerifyLogList(params) {
   return request({
     url: '/admin/ticket/verifyLog/page',

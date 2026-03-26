@@ -10,16 +10,13 @@
       </div>
     </header>
 
-    <!-- 主内容区 -->
     <div class="main-content">
-      <!-- Logo区域 -->
       <div class="logo-section">
         <div class="logo-icon">🍻</div>
         <h2 class="logo-text">Anime Shop</h2>
         <p class="logo-slogan">二次元爱好者的聚集地</p>
       </div>
 
-      <!-- 登录卡片 -->
       <div class="login-card">
         <div class="card-header">
           <span class="header-title">欢迎回来</span>
@@ -27,7 +24,6 @@
         </div>
 
         <van-form @submit="onSubmit" class="login-form">
-          <!-- 账号 -->
           <div class="form-item">
             <div class="item-icon">
               <van-icon name="user-o" />
@@ -40,7 +36,6 @@
             />
           </div>
 
-          <!-- 密码 -->
           <div class="form-item">
             <div class="item-icon">
               <van-icon name="lock" />
@@ -54,7 +49,6 @@
             />
           </div>
 
-          <!-- 验证码 -->
           <div class="form-item captcha-item">
             <div class="item-icon">
               <van-icon name="shield-o" />
@@ -71,7 +65,6 @@
             </div>
           </div>
 
-          <!-- 登录按钮 -->
           <div class="submit-section">
             <button class="submit-btn" type="submit">
               <van-icon name="log-in" />
@@ -80,7 +73,6 @@
           </div>
         </van-form>
 
-        <!-- 底部链接 -->
         <div class="form-footer">
           <span class="link-text" @click="$router.replace('/register')">
             还没有账号？<span class="highlight">去注册</span>

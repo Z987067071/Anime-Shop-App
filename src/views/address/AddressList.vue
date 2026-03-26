@@ -1,6 +1,5 @@
 <template>
   <div class="address-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -160,7 +159,6 @@ const goBack = () => {
 const selectAddress = (item) => {
   if (isSelectable.value) {
     selectedId.value = item.id
-    // 可以在这里触发回调或存储选择
   }
 }
 
@@ -201,7 +199,6 @@ const confirmDelete = async () => {
 
 onMounted(() => {
   loadAddressList()
-  // 判断是否从下单页进入（可选择地址）
   isSelectable.value = route.query.selectable === 'true'
 })
 </script>
@@ -213,7 +210,6 @@ onMounted(() => {
   padding-bottom: 20px;
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: sticky;
   top: 0;

@@ -186,7 +186,6 @@ const categoryRules = reactive({
   sort: [{ required: true, message: '请输入排序值', trigger: 'blur' }]
 })
 
-// 根据ID获取分类名称（用于子分类弹窗显示父分类）
 const getCategoryNameById = (id) => {
   const findName = (list) => {
     for (const item of list) {
@@ -266,7 +265,7 @@ const resetForm = () => {
   })
 }
 
-// 提交表单：逻辑不变
+// 提交表单
 const submitForm = async () => {
   categoryFormRef.value.validate(async (valid) => {
     if (valid) {
@@ -312,7 +311,6 @@ const submitForm = async () => {
 const handleStatusChange = async (row) => {
   loading.value = true
   try {
-    // 确保status是数字类型（后端接收Integer）
     const status = Number(row.status);
     const res = await updateCategoryStatus({
       id: row.id,
@@ -325,7 +323,6 @@ const handleStatusChange = async (row) => {
     }
     getCategoryListData()
   } catch (error) {
-    // 回滚开关状态（恢复原状态）
     row.status = row.status === 1 ? 0 : 1
     ElMessage.error('状态修改失败')
   } finally {

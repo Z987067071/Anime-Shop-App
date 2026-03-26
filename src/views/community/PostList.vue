@@ -1,6 +1,5 @@
 <template>
   <div class="post-list-page">
-    <!-- 顶部导航栏 - 玻璃拟态风格 -->
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
         <div class="back-btn" @click="router.push('/')">
@@ -83,7 +82,6 @@
                 </van-grid>
               </div>
               
-              <!-- 帖子统计信息（底部） -->
               <div class="post-stats">
                 <div class="stat-item">
                   <van-icon name="good-job-o" class="stats-icon" />
@@ -220,7 +218,6 @@ const previewImage = (url, urls) => {
   })
 }
 
-// 格式化时间
 const formatTime = (time) => {
   if (!time) return ''
   return new Date(time).toLocaleString('zh-CN', {
@@ -243,7 +240,7 @@ const handleScroll = (e) => {
   isScrolled.value = e.target.scrollTop > 50
 }
 
-// 组件卸载重置状态
+
 onUnmounted(() => {
   postList.value = []
   loading.value = false
@@ -259,14 +256,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 页面整体布局 - 渐变背景 */
 .post-list-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #fff5f7 0%, #ffffff 100%);
   padding-bottom: 60px;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: fixed;
   top: 0;
@@ -317,7 +312,7 @@ onMounted(() => {
 }
 
 .header-placeholder {
-  width: 36px; /* 占位保持居中 */
+  width: 36px;
 }
 
 .logo-section {
@@ -359,7 +354,6 @@ onMounted(() => {
   padding-bottom: 100px;
 }
 
-/* 空数据提示 - 新风格 */
 .empty-tip {
   text-align: center;
   padding: 60px 20px;
@@ -418,12 +412,10 @@ onMounted(() => {
   transform: scale(0.95);
 }
 
-/* 帖子列表 */
 .post-list {
   --van-list-padding: 0;
 }
 
-/* 帖子卡片样式 - 新拟态卡片 */
 .post-card {
   background: white;
   border-radius: 16px;
@@ -439,7 +431,6 @@ onMounted(() => {
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
-/* 发布人头部信息 */
 .post-header {
   display: flex;
   align-items: center;
@@ -454,14 +445,13 @@ onMounted(() => {
   gap: 12px;
 }
 
-/* ========== 调整img头像样式，保持和原van-avatar一致 ========== */
 .user-avatar {
   width: 44px;
   height: 44px;
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  object-fit: cover; /* 保证图片不变形 */
+  object-fit: cover;
 }
 
 .user-info {

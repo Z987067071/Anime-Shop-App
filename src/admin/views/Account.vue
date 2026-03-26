@@ -1,13 +1,11 @@
 <template>
   <div class="account-manage">
-    <!-- 面包屑 -->
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/admin/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>账户</el-breadcrumb-item>
       <el-breadcrumb-item>账户管理</el-breadcrumb-item>
     </el-breadcrumb>
 
-    <!-- 筛选栏 -->
     <div class="operation-bar" style="margin-top: 20px">
       <el-input
         v-model="searchForm.username"
@@ -34,7 +32,6 @@
         <template #prefix><el-icon><Search /></el-icon></template>
       </el-input>
 
-      <!-- 角色筛选 -->
       <el-select
         v-model="roleFilter"
         placeholder="全部角色"
@@ -52,7 +49,6 @@
       <el-button type="primary" @click="openAddDialog">新增账户</el-button>
     </div>
 
-    <!-- 表格 -->
     <el-table
       :data="accountList"
       border
@@ -61,7 +57,6 @@
       v-loading="loading"
       :default-sort="{ prop: 'createTime', order: 'descending' }"
     >
-      <!-- 按要求的字段列 -->
       <el-table-column prop="username" fixed="left" label="账号" min-width="120" />
       <el-table-column label="身份(Role)" fixed="left" min-width="120">
         <template #default="scope">
@@ -86,7 +81,6 @@
           {{ scope.row.updatedAt || '未修改' }}
         </template>
       </el-table-column>
-      <!-- 账户状态 -->
       <el-table-column label="账户状态" fixed="right" min-width="120">
         <template #default="scope">
           <el-switch
@@ -139,7 +133,6 @@
       />
     </div>
 
-    <!-- 引入抽离的弹窗组件 -->
     <AccountForm
       v-model:visible="formVisible"
       :is-edit="isEdit"
@@ -246,7 +239,6 @@ const getAccountList = async () => {
   }
 }
 
-// 角色文本映射
 const getRoleText = (role) => {
   const roleMap = {
     admin: '超级管理员',
@@ -258,7 +250,6 @@ const getRoleText = (role) => {
   return roleMap[role] || '未知角色'
 }
 
-// 角色标签样式映射
 const getRoleTagType = (role) => {
   const typeMap = {
     admin: 'danger',

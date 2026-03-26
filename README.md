@@ -1,5 +1,33 @@
-# Vue 3 + Vite
+# Anime Shop移动端
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+##### 观前提示
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+本项目大部分均由AI辅助开发,主要功能基本已经拥有,但是部分功能还是有没完善的地方,如果有什么好的设想可以指出一下,本系统用于毕业设计项目,论文结束后可能停止进行开发,有需要对这个系统进行参考的,随时欢迎来参考以及互相学习交流.
+
+#### 环境
+
+node版本: v20.19.0
+
+#### 功能介绍
+
+移动端采用了Vue.js和vite脚手架进行搭建开发.
+
+平台目前包括两部分:
+
+- 移动端: 首页,商品,搜索,排行榜,分类,购物车,订单,个人中心,商品收藏,票夹,提交工单,社区.
+- 后台: 账户管理,商品管理,工单管理,评论管理,分类管理
+
+该仓库为前端页面的代码,还请结合另外仓库代码一起启动
+
+
+
+#### 部署运行
+
+##### 前端运行步骤
+
+1. 安装好nodejs,配置好环境变量,嫌麻烦可以去下载nvm去变nodejs
+2. 拉取本仓库代码
+3. 去vite.config.js修改下你本地路径,本项目主要还是本地部署,不打算进行云服务器部署
+4. 安装好依赖npm install
+5. 就可以与后端一起启动npm run dev
+

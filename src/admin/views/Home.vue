@@ -60,7 +60,6 @@
       </el-aside>
 
       <el-main class="main">
-        <!-- 纯路由视图，和原有逻辑一致，无额外工作台内容 -->
         <router-view />
       </el-main>
     </el-container>

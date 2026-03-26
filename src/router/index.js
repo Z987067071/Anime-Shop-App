@@ -48,7 +48,6 @@ const routes = [
       { path: 'goods/detail/:id', name: 'GoodsDetail', component: () => import('@/views/GoodsDetail.vue') },
       { path: 'goods/comment', name: 'GoodsComment', component: () => import('@/views/GoodsComment.vue') },
       { path: '/search',name: 'Search',component: () => import('@/views/SearchPage.vue')},
-      // 一级分类商品列表页
       { path: 'product-list', name: 'ProductList', component: () => import('@/views/ProductList.vue') },
       { path: 'address/list', name: 'AddressList', component: () => import('@/views/address/AddressList.vue') },
       { path: 'address/add', name: 'AddressAdd', component: () => import('@/views/address/AddressAdd.vue') },
@@ -89,7 +88,6 @@ const routes = [
     ]
   },
 
-  // 404路由
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
@@ -102,25 +100,20 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫优化核心
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  // 1. 常量定义（集中管理，易维护）
   const NO_AUTH_WHITELIST = ['AdminLogin', 'Login', 'Register'] // 免登录页面
   const ADMIN_ROLE_WHITELIST = ['admin', 'manager', 'leader', 'member'] // 后台权限角色
-  const LOGIN_PAGE_MAP = { // 登录页映射：不同端对应不同登录页
+  const LOGIN_PAGE_MAP = {
     admin: '/admin/login',
     mobile: '/login'
   }
 
-  // 2. 免登录页面直接放行（优先级最高）
   if (NO_AUTH_WHITELIST.includes(to.name)) {
     next()
     return
   }
 
-  // 3. Token 校验（核心优化）
-  // 3.1 无Token：跳对应登录页 + 记录重定向地址
   if (!userStore.token) {
     const isAdminPage = to.path.startsWith('/admin')
     const loginPath = isAdminPage ? LOGIN_PAGE_MAP.admin : LOGIN_PAGE_MAP.mobile
@@ -142,21 +135,18 @@ router.beforeEach(async (to, from, next) => {
       return
     }
 
-    // 4.2 管理端子路由细粒度权限（可扩展）
     const permissionRules = [
       { path: '/admin/user', roles: ['admin', 'manager'], msg: '无用户管理权限' },
       { path: '/admin/order', roles: ['admin', 'manager', 'leader'], msg: '无订单管理权限' }
     ]
-    // 匹配权限规则
     const matchRule = permissionRules.find(rule => to.path === rule.path)
     if (matchRule && !matchRule.roles.includes(userStore.role)) {
       ElMessage.error(matchRule.msg)
-      next({ name: 'AdminHome' }) // 跳后台首页
+      next({ name: 'AdminHome' })
       return
     }
   }
 
-  // 5. 所有校验通过，正常放行
   next()
 })
 

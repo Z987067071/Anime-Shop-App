@@ -1,15 +1,12 @@
-// src/api/product.js
-import request from '@/utils/request' // 引入你已封装好的request
+import request from '@/utils/request'
 
-
-// 【核对/补充】商品/票种状态校验接口
 export function checkProductStatus(productId, skuId) {
   return request({
     url: '/api/mobile/product/check-status',
     method: 'get',
     params: {
-      productId, // 商品ID（必传）
-      skuId      // 票种SKU ID（可选，票务商品传，普通商品不传）
+      productId,
+      skuId 
     }
   })
 }

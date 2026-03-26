@@ -410,7 +410,6 @@ const toggleLike = async () => {
   }
 }
 
-// 加载商品详情（整合版，只发一次请求）
 const loadProductDetail = async () => {
   const id = route.params.id
   if (!id) {
@@ -429,10 +428,8 @@ const loadProductDetail = async () => {
       hasLiked.value = data.likeInfo?.hasLiked || false
       likeCount.value = data.likeInfo?.likeCount || 0
 
-      // ===================== 👇 新增：直接读取后端返回的收藏状态 =====================
       collected.value = data.isCollected || false
 
-      // 处理SKU
       skuList.value = Array.isArray(data.product.skuList) 
         ? data.product.skuList.filter(s => s.id && s.specValue) 
         : []

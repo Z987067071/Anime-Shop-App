@@ -284,22 +284,20 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
-// 核心状态
 const orderGoodsList = ref([]) 
 const isTicket = ref(0) 
 const addressList = ref([]) 
 const selectedAddress = ref(null) 
 const addressLoading = ref(false)  
 const addressPopupShow = ref(false) 
-const buyerList = ref([])             // 购票人列表
-const selectedBuyerList = ref([])     // 选中购票人列表（支持多选）
-const buyerLoading = ref(false)       // 购票人加载状态
-const buyerPopupShow = ref(false)     // 购票人弹窗状态
+const buyerList = ref([])
+const selectedBuyerList = ref([])
+const buyerLoading = ref(false)
+const buyerPopupShow = ref(false)
 
-const freightPrice = ref('0.00')      // 运费
-const isSubmitting = ref(false)       // 提交加载状态
+const freightPrice = ref('0.00')
+const isSubmitting = ref(false)
 
-// 计算总票数
 const totalTicketCount = computed(() => {
   return orderGoodsList.value.reduce((total, item) => {
     return total + Number(item.quantity || 0)
@@ -346,7 +344,6 @@ const removeSelectedBuyer = (buyerId) => {
   showToast('已移除该购票人')
 }
 
-// 初始化：从orderData中解析isTicket和商品数据
 onMounted(() => {
   try {
     const orderDataStr = route.query.orderData
@@ -354,14 +351,12 @@ onMounted(() => {
 
     const raw = JSON.parse(decodeURIComponent(orderDataStr))
 
-    // 兼容：数组（购物车） / 对象（直接购买）
     const rawDataList = Array.isArray(raw) ? raw : [raw]
 
     if (!rawDataList.length) {
       throw new Error('商品数据为空')
     }
 
-    // 统一格式化
     orderGoodsList.value = rawDataList.map(item => ({
       productId: item.productId || item.goodsId || '',
       productName: item.productName || item.goodsName || '',
@@ -374,7 +369,6 @@ onMounted(() => {
       isTicket: Number(item.isTicket || 0)
     }))
 
-    // 取第一个商品的isTicket作为整个订单类型
     isTicket.value = orderGoodsList.value[0]?.isTicket || 0
 
   } catch (err) {
@@ -383,7 +377,6 @@ onMounted(() => {
     return
   }
 
-  // 根据类型加载地址/购票人
   if (isTicket.value === 0) {
     fetchAddressList()
   } else {
@@ -391,11 +384,9 @@ onMounted(() => {
   }
 })
 
-// ========== 地址相关方法 ==========
 const fetchAddressList = async () => {
   addressLoading.value = true
   try {
-    // 登录校验：未登录先跳转
     if (!userStore.id || !userStore.token) {
       showToast('请先登录后再结算')
       router.push({
@@ -408,7 +399,6 @@ const fetchAddressList = async () => {
     const res = await getAddressList({ userId: userStore.id })
     addressList.value = res.data || []
     
-    // 优先选择默认地址，无默认则选第一个
     if (addressList.value.length) {
       const defaultAddress = addressList.value.find(item => item.isDefault === 1)
       selectedAddress.value = defaultAddress || addressList.value[0]
@@ -445,7 +435,6 @@ const goAddAddress = () => {
   })
 }
 
-// ========== 购票人相关方法 ==========
 const fetchBuyerList = async () => {
   buyerLoading.value = true
   try {
@@ -480,31 +469,25 @@ const openBuyerSelect = async () => {
 }
 
 const selectBuyer = (buyer) => {
-  // 仅审核通过的购票人可被选择
   if (buyer.auditStatus !== 1) {
     showToast('仅审核通过的购票人可选择购票')
     return
   }
   
-  // 检查是否已选中
   const isSelected = isBuyerSelected(buyer.id)
   
   if (isSelected) {
-    // 取消选中
     selectedBuyerList.value = selectedBuyerList.value.filter(item => item.id !== buyer.id)
     showToast(`已取消选择购票人：${buyer.name}`)
   } else {
-    // 检查是否超过票数上限
     if (selectedBuyerList.value.length >= totalTicketCount.value) {
       showFailToast(`最多只能选择${totalTicketCount.value}人，请修改票数或取消已选购票人`)
       return
     }
     
-    // 添加选中
     selectedBuyerList.value.push(buyer)
     showToast(`已选择购票人：${buyer.name}`)
     
-    // 选中数量等于票数时自动关闭弹窗
     if (selectedBuyerList.value.length === totalTicketCount.value) {
       buyerPopupShow.value = false
     }
@@ -519,9 +502,7 @@ const goAddBuyer = () => {
   })
 }
 
-// ========== 提交订单 ==========
 const submitOrder = async () => {
-  // 前置校验
   if (addressLoading.value || buyerLoading.value) {
     showToast('数据加载中，请稍候')
     return
@@ -544,7 +525,6 @@ const submitOrder = async () => {
   })
 
   try {
-    // 构建订单参数
     const orderParams = {
       userId: userStore.id,
       totalAmount: totalPrice.value,
@@ -552,8 +532,7 @@ const submitOrder = async () => {
       freightAmount: freightPrice.value,
       discountAmount: '0.00',
       remark: '',
-      isTicket: isTicket.value, // 传递票务标识
-      // 订单项
+      isTicket: isTicket.value,
       orderItems: orderGoodsList.value.map(item => ({
         productId: item.productId,
         skuId: item.skuId,
@@ -565,7 +544,6 @@ const submitOrder = async () => {
         ticketType: item.ticketType || item.skuName,
         skuName: item.skuName
       })),
-      // 购票人列表（多选）
       buyerList: selectedBuyerList.value.map(buyer => ({
         id: buyer.id,
         name: buyer.name,
@@ -573,14 +551,12 @@ const submitOrder = async () => {
       }))
     }
 
-    // 普通商品：添加地址参数
     if (isTicket.value === 0) {
       orderParams.consignee = selectedAddress.value.consignee
       orderParams.consigneePhone = selectedAddress.value.phone
       orderParams.consigneeAddress = selectedAddress.value.fullAddress
     }
 
-    // 调用提交订单接口
     const res = await apiSubmitOrder(orderParams)
     closeToast(loadingToast)
 
@@ -616,7 +592,6 @@ const submitOrder = async () => {
   padding-bottom: 80px;
 }
 
-/* 地址/购票人卡片样式 */
 .address-card-wrap, .buyer-card-wrap {
   margin-bottom: 15px;
 }

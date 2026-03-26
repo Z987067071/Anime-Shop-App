@@ -1,6 +1,5 @@
 <template>
   <div class="feedback-add-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -31,7 +30,6 @@
           />
         </div>
 
-        <!-- 图片上传 -->
         <div class="form-section">
           <div class="section-title">
             <van-icon name="photograph" />
@@ -79,7 +77,7 @@ import { addFeedback, uploadFeedbackImage } from '@/api/mobile/feedback'
 const router = useRouter()
 const userStore = useUserStore()
 
-// 表单数据
+
 const form = ref({
   userId: userStore.id,
   feedbackContent: '',
@@ -90,16 +88,13 @@ const form = ref({
 const fileList = ref([])
 const submitting = ref(false)
 
-// 上传前校验
 const beforeRead = (file) => {
-  // 限制图片类型
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
     ElMessage.error('请上传图片文件')
     return false
   }
   
-  // 限制大小 5MB
   const maxSize = 5 * 1024 * 1024
   if (file.size > maxSize) {
     ElMessage.error('图片大小不能超过5MB')
@@ -109,9 +104,7 @@ const beforeRead = (file) => {
   return true
 }
 
-// 读取后上传
 const afterRead = async (file) => {
-  // 设置上传状态
   file.status = 'uploading'
   file.message = '上传中...'
   
@@ -124,7 +117,6 @@ const afterRead = async (file) => {
     if (res.code === 0) {
       file.status = 'done'
       file.url = res.data?.[0] || file.content
-      // 保存URL到表单
       form.value.imageUrls.push(res.data?.[0])
     } else {
       file.status = 'failed'
@@ -160,7 +152,6 @@ const submitFeedback = async () => {
   submitting.value = true
   
   try {
-    // 过滤掉上传失败的图片
     const validImages = fileList.value
       .filter(f => f.status === 'done' && f.url)
       .map(f => f.url)
@@ -195,7 +186,6 @@ const goBack = () => {
   background: #f5f7fa;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: sticky;
   top: 0;

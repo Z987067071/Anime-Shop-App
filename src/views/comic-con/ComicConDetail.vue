@@ -1,6 +1,5 @@
 <template>
   <div class="comic-con-detail">
-    <!-- 顶部导航 -->
     <van-nav-bar
       title="漫展详情"
       fixed
@@ -80,15 +79,11 @@ import { showToast, showConfirmDialog } from 'vant';
 
 const router = useRouter();
 const route = useRoute();
-const comicConId = route.params.id; // 获取漫展ID
+const comicConId = route.params.id;
 
-// 弹窗状态
 const ticketModalShow = ref(false);
-// 选中的票种ID
 const selectedTicketId = ref('');
-// 购买数量
 const buyNum = ref(1);
-// 漫展详情（模拟数据）
 const comicConInfo = ref({
   id: comicConId,
   name: '2026B站二次元漫展-上海站',
@@ -99,7 +94,6 @@ const comicConInfo = ref({
   description: '2026B站二次元漫展重磅来袭！超多大咖嘉宾、限定周边、舞台表演，等你来嗨！',
   statusText: '售票中'
 });
-// 票种列表（模拟数据）
 const ticketList = ref([
   {
     id: 1,

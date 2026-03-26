@@ -1,6 +1,5 @@
 <template>
   <div class="product-collect">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">

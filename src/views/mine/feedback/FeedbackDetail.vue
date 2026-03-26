@@ -1,6 +1,5 @@
 <template>
   <div class="feedback-detail-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="goBack">
@@ -87,7 +86,6 @@
         </div>
       </div>
 
-      <!-- 底部占位，防止被固定底部遮挡 -->
       <div class="bottom-spacer"></div>
     </div>
 
@@ -97,7 +95,6 @@
       <span>加载中...</span>
     </div>
 
-    <!-- 底部操作区 -->
     <div class="action-section" v-if="detail && canReply">
       <div class="input-wrapper">
         <van-field
@@ -123,7 +120,6 @@
       </div>
     </div>
 
-    <!-- 已关闭提示 -->
     <div class="closed-tip" v-if="detail && detail.status === 4">
       <van-icon name="info-o" />
       <span>该工单已关闭，如有问题请提交新工单</span>
@@ -158,15 +154,12 @@ const submitting = ref(false)
 const loading = ref(false)
 const loadingReplies = ref(false)
 
-// 图片预览
 const showPreview = ref(false)
 const previewImages = ref([])
 const previewIndex = ref(0)
 
-// 轮询定时器
 let pollTimer = null
 
-// 状态映射
 const getStatusType = (status) => {
   const map = {
     0: 'warning',
@@ -189,24 +182,20 @@ const getStatusText = (status) => {
   return map[status] || '未知'
 }
 
-// 是否可以回复
 const canReply = computed(() => {
   return detail.value && [0, 1].includes(detail.value.status)
 })
 
-// 格式化时间
 const formatTime = (time) => {
   if (!time) return ''
   const date = new Date(time)
   const now = new Date()
   const diff = now - date
   
-  // 如果是今天，显示时间
   if (diff < 24 * 60 * 60 * 1000 && date.getDate() === now.getDate()) {
     return `今天 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
   }
   
-  // 如果是昨天
   if (diff < 48 * 60 * 60 * 1000 && date.getDate() === now.getDate() - 1) {
     return `昨天 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
   }
@@ -214,7 +203,6 @@ const formatTime = (time) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-// 加载详情
 const loadDetail = async () => {
   loading.value = true
   try {
@@ -226,7 +214,6 @@ const loadDetail = async () => {
     if (res.code === 0) {
       detail.value = res.data
       previewImages.value = res.data.imageUrls || []
-      // 加载完详情后加载回复列表
       await loadReplies()
     } else {
       ElMessage.error(res.msg || '获取详情失败')
@@ -240,7 +227,6 @@ const loadDetail = async () => {
   }
 }
 
-// 加载回复列表（独立接口）
 const loadReplies = async () => {
   loadingReplies.value = true
   try {
@@ -257,13 +243,11 @@ const loadReplies = async () => {
   }
 }
 
-// 刷新回复列表
 const refreshReplies = () => {
   if (loadingReplies.value) return
   loadReplies()
 }
 
-// 预览图片
 const previewImage = (index) => {
   previewIndex.value = index
   showPreview.value = true
@@ -292,9 +276,7 @@ const submitReply = async () => {
     if (res.code === 0) {
       ElMessage.success('发送成功')
       replyContent.value = ''
-      // 立即刷新回复列表
       await loadReplies()
-      // 滚动到底部
       scrollToBottom()
     } else {
       ElMessage.error(res.msg || '发送失败')
@@ -306,7 +288,6 @@ const submitReply = async () => {
   }
 }
 
-// 滚动到底部
 const scrollToBottom = () => {
   setTimeout(() => {
     const replyList = document.querySelector('.reply-list')
@@ -317,7 +298,6 @@ const scrollToBottom = () => {
   }, 100)
 }
 
-// 输入框焦点处理（移动端键盘适配）
 const onInputFocus = () => {
   setTimeout(() => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
@@ -328,9 +308,7 @@ const onInputBlur = () => {
   // 可以在这里处理失焦逻辑
 }
 
-// 开始轮询新回复
 const startPolling = () => {
-  // 每30秒刷新一次回复列表
   pollTimer = setInterval(() => {
     if (document.visibilityState === 'visible') {
       loadReplies()
@@ -373,7 +351,6 @@ onUnmounted(() => {
   padding-bottom: 100px;
 }
 
-/* 玻璃拟态头部 */
 .glass-header {
   position: sticky;
   top: 0;

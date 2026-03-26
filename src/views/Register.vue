@@ -1,6 +1,5 @@
 <template>
   <div class="register-page">
-    <!-- 玻璃拟态头部 -->
     <header class="glass-header">
       <div class="header-content">
         <div class="back-btn" @click="$router.back()">
@@ -135,12 +134,10 @@ const getCaptcha = async () => {
 }
 
 const onSubmit = async () => {
-  // 密码一致性校验
   if (form.password !== form.confirmPassword) {
     return showFailToast('两次输入的密码不一致')
   }
   
-  // 密码长度校验
   if (form.password.length < 6 || form.password.length > 20) {
     return showFailToast('密码长度应为6-20位')
   }
@@ -166,7 +163,6 @@ const onSubmit = async () => {
   background: linear-gradient(180deg, #fff5f7 0%, #f5f7fa 100%);
 }
 
-/* ===== 玻璃拟态头部 ===== */
 .glass-header {
   position: sticky;
   top: 0;

@@ -49,7 +49,7 @@ export function deleteAddress(id, params) {
   })
 }
 
-// 6. 获取用户默认地址（可选扩展）
+// 6. 获取用户默认地址
 export function getDefaultAddress(params) {
   return request({
     url: '/mobile/address/default',

@@ -1,9 +1,7 @@
-import request from '@/utils/request' // 复用项目中已封装的request工具
+import request from '@/utils/request'
 
 /**
  * 移动端 - 按二级分类查询上架商品
- * @param {Number|String} categoryId 二级分类ID
- * @returns {Promise} 商品列表Promise对象
  */
 export function getProductListByCategory(categoryId) {
   return request({
@@ -65,9 +63,9 @@ export function getHomeProductList(pageParams = {}) {
 
 /**
  * 移动端 - 校验商品/票种状态和库存
- * @param {Number|String} productId 商品ID
- * @param {Number|String} skuId SKU/票种ID
- * @returns {Promise} 校验结果
+ * @param {Number|String} productId
+ * @param {Number|String} skuId
+ * @returns {Promise}
  */
 export function checkProductStatus(productId, skuId = '') {
   return request({
@@ -79,8 +77,6 @@ export function checkProductStatus(productId, skuId = '') {
 
 /**
  * 收藏/取消收藏商品
- * @param {Object} data - { productId, isCollect }
- * isCollect: 1=收藏，0=取消收藏
  */
 export function collectProduct(data) {
   return request({
@@ -92,7 +88,6 @@ export function collectProduct(data) {
 
 /**
  * 查询用户收藏的商品列表
- * @param {Object} params - { pageNum, pageSize }
  */
 export function getCollectList(params) {
   return request({
@@ -104,8 +99,6 @@ export function getCollectList(params) {
 
 /**
  * 商品点赞/取消点赞
- * @param {Number} productId 商品ID
- * @param {Boolean} isLike true=点赞，false=取消点赞
  * @returns 
  */
 export const likeProduct = (productId, isLike) => {
@@ -121,8 +114,6 @@ export const likeProduct = (productId, isLike) => {
 
 /**
  * 获取商品点赞状态和数量
- * @param {Number} productId 商品ID
- * @returns 
  */
 export const getProductLikeInfo = (productId) => {
   return request({
@@ -152,7 +143,6 @@ export const getCommentList = (params) => {
   })
 }
 
-// ========== 新增：评论点赞/取消点赞 ==========
 export const toggleCommentLike = (commentId, token) => {
   return request({
     url: `/mobile/product/comment/like/${commentId}`,
@@ -163,7 +153,6 @@ export const toggleCommentLike = (commentId, token) => {
   })
 }
 
-// ========== 新增：删除评论 ==========
 export const deleteComment = (commentId, token) => {
   return request({
     url: `/mobile/product/comment/delete/${commentId}`,
@@ -176,10 +165,6 @@ export const deleteComment = (commentId, token) => {
 
 /**
  * 发表评论/回复评论（通用方法）
- * @param {Object} data - { productId, content, parentId } 
- *                        parentId=0 表示根评论，>0 表示回复指定评论
- * @param {String} token - 用户token
- * @returns 
  */
 export const submitComment = (data, token) => {
   return request({
