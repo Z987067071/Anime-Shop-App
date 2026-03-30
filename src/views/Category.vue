@@ -2,9 +2,9 @@
   <div class="category-page">
     <header class="glass-header" :class="{ 'scrolled': isScrolled }">
       <div class="header-content">
-        <div class="back-btn" @click="router.back()">
+        <!-- <div class="back-btn" @click="router.back()">
           <van-icon name="arrow-left" />
-        </div>
+        </div> -->
         <h1 class="page-title">全部分类</h1>
         <div class="search-btn" @click="goSearch">
           <van-icon name="search" />

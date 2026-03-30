@@ -114,7 +114,7 @@
             :class="`rank-${index + 1}`"
             @click="goProductDetail(item.id)"
           >
-            <div class="rank-crown" v-if="index === 0">👑</div>
+            <!-- <div class="rank-crown" v-if="index === 0">👑</div> -->
             <div class="rank-medal">{{ ['🥇', '🥈', '🥉'][index] }}</div>
             <div class="top-image">
               <img 
@@ -210,7 +210,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { searchProductList } from '@/api/mobile/product'
 import { showToast } from 'vant'
@@ -407,6 +407,10 @@ onMounted(() => {
   loadRankData()
   checkScrollable()
   window.addEventListener('resize', checkScrollable)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScrollable)
 })
 </script>
 

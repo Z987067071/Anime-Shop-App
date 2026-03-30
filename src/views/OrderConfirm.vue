@@ -1,13 +1,15 @@
 <template>
   <div class="order-confirm-page">
     <!-- 导航栏 -->
-    <van-nav-bar 
-      title="确认订单" 
-      left-arrow
-      fixed
-      placeholder
-      @click-left="$router.back()"
-    />
+    <div class="page-header">
+      <div class="header-content">
+        <div class="back-btn" @click="$router.back()">
+          <van-icon name="arrow-left" />
+        </div>
+        <div class="header-title">确认订单</div>
+        <div style="width: 36px"></div>
+      </div>
+    </div>
 
     <div class="address-card-wrap" @click="openAddressSelect" v-if="isTicket === 0">
       <div class="address-card" v-loading="addressLoading">
@@ -587,9 +589,53 @@ const submitOrder = async () => {
 
 <style scoped>
 .order-confirm-page {
-  background: #f5f5f5;
+  background: #f5f7fa;
   min-height: 100vh;
   padding-bottom: 80px;
+  padding-top: 56px;
+}
+
+/* 头部 */
+.page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+}
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
 }
 
 .address-card-wrap, .buyer-card-wrap {
@@ -667,7 +713,7 @@ const submitOrder = async () => {
   margin-right: 8px;
 }
 .default-tag {
-  background: #f44;
+  background: #ff2442;
   border-radius: 4px;
 }
 .address-card-bottom {
@@ -742,7 +788,7 @@ const submitOrder = async () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .address-item.active {
-  border: 2px solid #f44;
+  border: 2px solid #ff2442;
 }
 .address-item.disabled {
   opacity: 0.6;
@@ -767,7 +813,7 @@ const submitOrder = async () => {
   margin-right: 8px;
 }
 .check-icon {
-  color: #f44;
+  color: #ff2442;
   position: absolute;
   right: 15px;
   top: 50%;
@@ -839,7 +885,7 @@ const submitOrder = async () => {
 .goods-price {
   font-size: 15px;
   font-weight: 600;
-  color: #f44;
+  color: #ff2442;
 }
 .goods-num {
   font-size: 14px;
@@ -875,7 +921,7 @@ const submitOrder = async () => {
   border-top: 1px solid #f8f8f8;
 }
 .price-item.total span:last-child {
-  color: #f44;
+  color: #ff2442;
 }
 
 /* 提交按钮样式 */
@@ -906,11 +952,11 @@ const submitOrder = async () => {
 
 /* 全局样式 */
 :deep(.van-button--primary) {
-  background-color: #f44;
-  border-color: #f44;
+  background-color: #ff2442;
+  border-color: #ff2442;
 }
 :deep(.van-tag--primary) {
-  background-color: #f44;
+  background-color: #ff2442;
 }
 :deep(.van-tag--success) {
   background-color: #07c160;

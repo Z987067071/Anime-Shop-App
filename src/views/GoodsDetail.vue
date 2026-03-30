@@ -404,7 +404,9 @@ const toggleLike = async () => {
       ElMessage.success(hasLiked.value ? '点赞成功' : '取消点赞成功')
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    if (error.response?.status !== 401) {
+      ElMessage.error('操作失败')
+    }
   } finally {
     likeLoading.value = false
   }
@@ -612,7 +614,9 @@ const toggleCollect = async () => {
       ElMessage.success(collected.value ? '收藏成功' : '取消收藏成功')
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    if (error.response?.status !== 401) {
+      ElMessage.error('操作失败')
+    }
   } finally {
     collectLoading.value = false
   }

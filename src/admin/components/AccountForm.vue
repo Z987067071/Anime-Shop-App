@@ -29,11 +29,11 @@
       </el-form-item>
       <el-form-item label="身份(Role)" prop="role">
         <el-select v-model="formData.role" placeholder="请选择账户角色">
-          <el-option label="超级管理员" value="admin" />
-          <el-option label="经理" value="manager" />
-          <el-option label="组长" value="leader" />
-          <el-option label="组员" value="member" />
-          <el-option label="普通用户" value="consumer" />
+          <el-option v-if="canAssignRole('admin')" label="超级管理员" value="admin" />
+          <el-option v-if="canAssignRole('manager')" label="经理" value="manager" />
+          <el-option v-if="canAssignRole('leader')" label="组长" value="leader" />
+          <el-option v-if="canAssignRole('member')" label="组员" value="member" />
+          <el-option v-if="canAssignRole('consumer')" label="普通用户" value="consumer" />
         </el-select>
       </el-form-item>
       <el-form-item label="邮箱" prop="email">
@@ -98,6 +98,15 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'submit', 'update:model-value'])
+
+const ROLE_LEVEL = { admin: 0, manager: 1, leader: 2, member: 3, consumer: 4 }
+
+// 操作人只能分配比自己权限低的角色
+const canAssignRole = (targetRole) => {
+  const opLevel = ROLE_LEVEL[props.operatorRole] ?? 99
+  const targetLevel = ROLE_LEVEL[targetRole] ?? 99
+  return opLevel < targetLevel
+}
 
 const accountFormRef = ref(null)
 

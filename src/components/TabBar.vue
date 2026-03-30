@@ -1,5 +1,5 @@
 <template>
-  <van-tabbar v-model="active" active-color="#ff6f91">
+  <van-tabbar v-model="active" active-color="#ff2442">
     <van-tabbar-item icon="home-o" @click="switchTab('/')">首页</van-tabbar-item>
     <van-tabbar-item icon="apps-o" @click="switchTab('/category')">分类</van-tabbar-item>
     <van-tabbar-item icon="shopping-cart-o" @click="switchTab('/cart')">购物车</van-tabbar-item>

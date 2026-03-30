@@ -99,16 +99,12 @@ export function getCollectList(params) {
 
 /**
  * 商品点赞/取消点赞
- * @returns 
  */
 export const likeProduct = (productId, isLike) => {
   return request({
     url: `/mobile/product/like/${productId}`,
     method: 'post',
-    params: {
-      isLike,
-      userId: localStorage.getItem('id') || ''
-    }
+    params: { isLike }
   })
 }
 

@@ -219,7 +219,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import TabBar from '@/components/TabBar.vue'
 import { searchProductList } from '@/api/mobile/product'
@@ -468,6 +468,10 @@ onMounted(() => {
   nextTick(() => {
     searchInput.value?.focus()
   })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 watch(

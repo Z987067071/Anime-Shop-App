@@ -46,7 +46,7 @@ export function payComicConOrder(orderId, payType) {
  */
 export function getComicConOrderDetail(orderId) {
   return request({
-    url: `/api/mobile/order/detail/${orderId}`,
+    url: `/mobile/order/detail/${orderId}`,
     method: 'get'
   })
 }

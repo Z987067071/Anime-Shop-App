@@ -1,6 +1,5 @@
 import { useUserStore } from '@/stores/user'
 import { createRouter, createWebHistory } from 'vue-router'
-import { ElMessage } from 'element-plus'
 
 const routes = [
   // 公共路由（免登录）
@@ -72,8 +71,8 @@ const routes = [
           }
           next()
         }},
-      { path: '/order/pay', name: 'Pay', component:() => import('@/views/Pay.vue'),meta: {requireAuth: true}},
-      { path: '/mine/orderList', name: 'MineOrders', component: () => import('@/views/mine/OrderList.vue'),meta: {requireAuth: true}},
+      { path: '/order/pay', name: 'Pay', component:() => import('@/views/Pay.vue'), meta: { requiresAuth: true }},
+      { path: '/mine/orderList', name: 'MineOrders', component: () => import('@/views/mine/OrderList.vue'), meta: { requiresAuth: true }},
       { path: '/feedback', name: 'Feedback', component: () => import('@/views/mine/feedback/Feedback.vue'),meta: { requiresAuth: true }},
       { path: '/feedback/add', name: 'FeedbackAdd', component: () => import('@/views/mine/feedback/FeedbackAdd.vue'),meta: { requiresAuth: true }},
       { path: '/feedback/detail/:id', name: 'FeedbackDetail', component: () => import('@/views/mine/feedback/FeedbackDetail.vue'), props: true,meta: { requiresAuth: true }},
@@ -102,12 +101,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  const NO_AUTH_WHITELIST = ['AdminLogin', 'Login', 'Register'] // 免登录页面
-  const ADMIN_ROLE_WHITELIST = ['admin', 'manager', 'leader', 'member'] // 后台权限角色
-  const LOGIN_PAGE_MAP = {
-    admin: '/admin/login',
-    mobile: '/login'
-  }
+  const NO_AUTH_WHITELIST = ['AdminLogin', 'Login', 'Register']
+  const ADMIN_ROLE_WHITELIST = ['admin', 'manager', 'leader', 'member']
 
   if (NO_AUTH_WHITELIST.includes(to.name)) {
     next()
@@ -116,13 +111,8 @@ router.beforeEach(async (to, from, next) => {
 
   if (!userStore.token) {
     const isAdminPage = to.path.startsWith('/admin')
-    const loginPath = isAdminPage ? LOGIN_PAGE_MAP.admin : LOGIN_PAGE_MAP.mobile
-    if (from.name !== NO_AUTH_WHITELIST.find(name => name.includes('Login'))) {
-      ElMessage.warning('登录状态已过期，请重新登录')
-    }
-    
-    next({ 
-      path: loginPath, 
+    next({
+      path: isAdminPage ? '/admin/login' : '/login',
       query: { redirect: to.fullPath }
     })
     return
@@ -130,19 +120,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.adminOnly) {
     if (!ADMIN_ROLE_WHITELIST.includes(userStore.role)) {
-      ElMessage.error('抱歉，您暂无后台管理权限，请联系管理员')
       next({ path: '/' })
-      return
-    }
-
-    const permissionRules = [
-      { path: '/admin/user', roles: ['admin', 'manager'], msg: '无用户管理权限' },
-      { path: '/admin/order', roles: ['admin', 'manager', 'leader'], msg: '无订单管理权限' }
-    ]
-    const matchRule = permissionRules.find(rule => to.path === rule.path)
-    if (matchRule && !matchRule.roles.includes(userStore.role)) {
-      ElMessage.error(matchRule.msg)
-      next({ name: 'AdminHome' })
       return
     }
   }

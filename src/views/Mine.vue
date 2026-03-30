@@ -246,7 +246,7 @@
           <span class="divider">|</span>
           <a href="#" @click.prevent>开源许可</a>
         </div>
-        <p class="copyright">© 2024 Anime Shop. All rights reserved.</p>
+        <p class="copyright">© 2026 Anime Shop. All rights reserved.</p>
       </div>
     </van-action-sheet>
 

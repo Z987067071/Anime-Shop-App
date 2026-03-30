@@ -46,7 +46,7 @@
         <el-option label="用户" value="consumer" />
       </el-select>
 
-      <el-button type="primary" @click="openAddDialog">新增账户</el-button>
+      <el-button type="primary" @click="openAddDialog" v-if="['admin','manager','leader'].includes(user.role)">新增账户</el-button>
     </div>
 
     <el-table
@@ -89,7 +89,7 @@
             :inactive-value="0"
             @click.prevent="handleStatusChange(scope.row)"
             @change="() => {}"
-            :disabled="scope.row.role === 'admin'"
+            :disabled="!canOperate(scope.row)"
           />
           <span style="margin-left: 8px">
             {{ getStatusText(scope.row.status) }}
@@ -99,23 +99,24 @@
       <!-- 操作列 -->
       <el-table-column fixed="right" label="操作" min-width="250">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="openEditDialog(scope.row)">编辑</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="openEditDialog(scope.row)"
+            :disabled="!canOperate(scope.row)"
+          >编辑</el-button>
           <el-button
             type="warning"
             size="small"
             @click="openResetPwdDialog(scope.row)"
-            :disabled="scope.row.role === 'admin'"
-          >
-            重置密码
-          </el-button>
+            :disabled="!canOperate(scope.row)"
+          >重置密码</el-button>
           <el-button
             type="danger"
             size="small"
             @click="deleteAccount(scope.row)"
-            :disabled="scope.row.role === 'admin'"
-          >
-            删除
-          </el-button>
+            :disabled="!canOperate(scope.row)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -159,7 +160,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import AccountForm from '@/admin/components/AccountForm.vue'
 import ResetPasswordDialog from '@/admin/components/ResetPasswordDialog.vue'
-import request from '@/utils/request'
 import { useUserStore } from '@/stores/user'
 import { 
   getUsers, 
@@ -270,8 +270,14 @@ const getStatusText = (status) => {
 };
 
 const handleStatusChange = async (row) => {
-  const originalStatus = row.status
-  const targetStatus = originalStatus === 1 ? 1 : 0
+  if (!canOperate(row)) return
+
+  const currentStatus = row.status
+  const originalStatus = currentStatus === 1 ? 0 : 1
+  const targetStatus = currentStatus
+
+  row.status = originalStatus
+
   const statusText = targetStatus === 1 ? '启用' : '禁用'
 
   try {
@@ -284,13 +290,12 @@ const handleStatusChange = async (row) => {
     loading.value = true
     const res = await editUser({
       id: row.id,
-      status: targetStatus,
+      status: String(targetStatus),
       operatorRole: user.role
     })
 
     if (res.code !== 0) {
       ElMessage.error(res.msg || '状态修改失败')
-      row.status = originalStatus
       return
     }
 
@@ -298,15 +303,21 @@ const handleStatusChange = async (row) => {
     ElMessage.success(`账户已${statusText}`)
     getAccountList()
   } catch (error) {
-    row.status = originalStatus
-    getAccountList()
     if (error !== 'cancel') {
-      console.error('修改状态失败：', error)
       ElMessage.error('状态修改失败，请重试')
     }
   } finally {
     loading.value = false
   }
+}
+
+const ROLE_LEVEL = { admin: 0, manager: 1, leader: 2, member: 3, consumer: 4 }
+
+const canOperate = (row) => {
+  if (row.id === user.id || row.username === user.username) return false
+  const opLevel = ROLE_LEVEL[user.role] ?? 99
+  const targetLevel = ROLE_LEVEL[row.role] ?? 99
+  return opLevel < targetLevel
 }
 
 // 打开新增弹窗
@@ -318,24 +329,8 @@ const openAddDialog = () => {
 
 // 打开编辑弹窗
 const openEditDialog = (row) => {
-  const roleLevel = { admin:0, manager:1, leader:2, member:3, consumer:4 }
-
-  const operatorLevel = roleLevel[user.role] || 4
-  const targetLevel = roleLevel[row.role] || 4
-
-  const isSelf = row.username === user.username
-  const canEdit = user.role === 'admin' || isSelf || (operatorLevel < targetLevel)
-  
-  if (!canEdit) {
-    ElMessage.warning('权限不足，无法编辑该账户')
-    return
-  }
-
   isEdit.value = true
-  editData.value = { 
-    ...row, 
-    id: String(row.id)
-  }
+  editData.value = { ...row, id: String(row.id) }
   formVisible.value = true
 }
 
