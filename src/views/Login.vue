@@ -95,8 +95,13 @@ const router = useRouter()
 const form = reactive({ username: '', password: '', captcha: '' })
 const captchaUrl = ref('')
 
-const refreshCaptcha = () => {
-  // captchaUrl.value = `/api/captcha?t=${Date.now()}`
+const refreshCaptcha = async () => {
+  try {
+    const { data } = await request.get('/captcha/img', { params: { username: form.username } })
+    captchaUrl.value = data
+  } catch (e) {
+    showFailToast('获取验证码失败')
+  }
 }
 
 onMounted(() => {
