@@ -4,10 +4,24 @@
 
     <el-form :model="form" :rules="rules" @submit.prevent="onSubmit" class="login-form">
       <el-form-item prop="username">
-        <el-input v-model="form.username" placeholder="用户名" />
+        <el-input v-model="form.username" placeholder="用户名" @blur="refreshCaptcha" />
       </el-form-item>
       <el-form-item prop="password">
         <el-input v-model="form.password" type="password" placeholder="密码" />
+      </el-form-item>
+      <el-form-item prop="captcha">
+        <div class="captcha-row">
+          <el-input v-model="form.captcha" placeholder="验证码" class="captcha-input" />
+          <img
+            v-if="captchaUrl"
+            :src="captchaUrl"
+            alt="验证码"
+            class="captcha-img"
+            @click="refreshCaptcha"
+            title="点击刷新"
+          />
+          <span v-else class="captcha-placeholder" @click="refreshCaptcha">点击刷新</span>
+        </div>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" native-type="submit" class="submit-btn">登录</el-button>
@@ -17,7 +31,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import request from '@/utils/request'
@@ -28,8 +42,21 @@ const user = useUserStore()
 
 const form = reactive({
   username: '',
-  password: ''
+  password: '',
+  captcha: ''
 })
+
+const captchaUrl = ref('')
+
+const refreshCaptcha = async () => {
+  if (!form.username) return
+  try {
+    const { data } = await request.get('/captcha/img', { params: { username: form.username } })
+    captchaUrl.value = data
+  } catch (e) {
+    ElMessage.error('获取验证码失败')
+  }
+}
 
 const rules = {
   username: [
@@ -37,6 +64,9 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' }
+  ],
+  captcha: [
+    { required: true, message: '请输入验证码', trigger: 'blur' }
   ]
 }
 
@@ -44,15 +74,20 @@ const onSubmit = async () => {
   try {
     const { data,code,msg } = await request.post('/login', form)
     const adminRoles = ['admin', 'manager', 'leader','member'];
-    if (code !== 0) return alert(msg)
+    if (code !== 0) {
+      refreshCaptcha()
+      return alert(msg)
+    }
     if (!adminRoles.includes(data.role)) {
       ElMessage.error('无后台管理权限，请使用管理员账号登录');
+      refreshCaptcha()
       return;
     }
     user.login(data.token, data.role,form.username,data.avatar,data.id);
     router.push('/admin');
   } catch (e) {
     ElMessage.error('登录失败：' + e);
+    refreshCaptcha()
     user.logout();
   }
 }
@@ -98,5 +133,39 @@ const onSubmit = async () => {
 
 .submit-btn:hover {
   box-shadow: 0 6px 20px 0 rgba(31, 38, 135, 0.6);
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-img {
+  width: 110px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.captcha-placeholder {
+  width: 110px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 </style>
