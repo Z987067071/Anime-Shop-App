@@ -82,6 +82,10 @@ import TabBar from '@/components/TabBar.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
+const redirectBack = () => {
+  router.back()
+}
+
 const form = ref({
   name: '',
   idCard: '',
@@ -89,7 +93,7 @@ const form = ref({
 })
 
 const goBack = () => {
-  router.push({ name: 'BuyerList' })
+  redirectBack()
 }
 
 // 提交表单
@@ -122,7 +126,7 @@ const onSubmit = async () => {
     const res = await addBuyer(form.value)
     if (res.code === 0) {
       ElMessage.success('购票人信息添加成功')
-      router.push({ name: 'BuyerList' })
+      redirectBack()
     } else {
       ElMessage.error(res.msg || '添加失败，请稍后重试')
     }

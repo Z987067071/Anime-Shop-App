@@ -67,8 +67,8 @@
           </div>
           <div class="sales-info">
             <span class="sales-count">已售 {{ product.sales || 0 }}+</span>
-            <span class="stock-count" :class="{ 'low': product.remainStock < 10 }">
-              库存{{ product.remainStock }}件
+            <span class="stock-count" :class="{ 'low': availableStock < 10 }">
+              库存{{ availableStock }}件
             </span>
           </div>
         </div>
@@ -213,7 +213,7 @@
             <span class="symbol">¥</span>
             <span class="amount">{{ isTicketProduct && selectedSku ? selectedSku.price : product?.price }}</span>
           </div>
-          <div class="sku-stock">库存 {{ product?.remainStock }} 件</div>
+          <div class="sku-stock">库存 {{ availableStock }} 件</div>
           <div class="sku-selected">{{ selectedSpec || '请选择规格' }}</div>
         </div>
       </div>
@@ -254,12 +254,12 @@
           <van-stepper 
             v-model="currentNum" 
             :min="1" 
-            :max="product?.remainStock || 1"
-            :disabled="product?.remainStock < 1"
+            :max="availableStock || 1"
+            :disabled="availableStock < 1"
           />
         </div>
         
-        <div class="sku-tips" v-if="product?.remainStock < 10 && product?.remainStock > 0">
+        <div class="sku-tips" v-if="availableStock < 10 && availableStock > 0">
           <van-icon name="warning-o" />
           <span>库存紧张，欲购从速</span>
         </div>
@@ -270,7 +270,7 @@
           type="warning" 
           block 
           round 
-          :disabled="product?.remainStock < 1 || (isTicketProduct && !selectedSku) || product.isTicket === 1"
+          :disabled="availableStock < 1 || (isTicketProduct && !selectedSku) || product.isTicket === 1"
           @click="confirmAddCart"
         >
           {{ product.isTicket === 1 ? '票务商品仅支持直购' : '加入购物车' }}
@@ -279,10 +279,10 @@
           type="danger" 
           block 
           round 
-          :disabled="product?.remainStock < 1 || (isTicketProduct && !selectedSku)"
+          :disabled="availableStock < 1 || (isTicketProduct && !selectedSku) || (isTicketProduct && selectedSku && isTicketDisabled(selectedSku))"
           @click="confirmBuy"
         >
-          立即购买
+          {{ isTicketProduct && skuList.every(s => isTicketDisabled(s)) ? '票已售罄' : '立即购买' }}
         </van-button>
       </div>
     </van-popup>
@@ -348,6 +348,16 @@ const productImageList = computed(() => {
 // 预览图
 const previewImages = computed(() => {
   return productImageList.value.map(item => item.imageUrl)
+})
+
+const availableStock = computed(() => {
+  if (!product.value) return 0
+  if (isTicketProduct.value && skuList.value.length > 0) {
+    return skuList.value
+      .filter(s => !isTicketDisabled(s))
+      .reduce((sum, s) => sum + (s.stock || 0), 0)
+  }
+  return product.value.remainStock || 0
 })
 
 // 选中规格
@@ -434,7 +444,8 @@ const loadProductDetail = async () => {
         ? data.product.skuList.filter(s => s.id && s.specValue) 
         : []
       if (isTicketProduct.value) {
-        selectedSku.value = skuList.value[0] || null
+        // 默认选中第一个未售罄且未下架的票种
+        selectedSku.value = skuList.value.find(s => s.status !== 0 && s.status !== 2) || null
       }
       currentNum.value = 1
     } else {
@@ -505,7 +516,7 @@ const checkStatus = () => {
     ElMessage.error('商品已下架')
     return false
   }
-  if (product.value.remainStock < 1) {
+  if (availableStock.value < 1) {
     ElMessage.error('库存不足')
     return false
   }
@@ -520,7 +531,7 @@ const confirmAddCart = async () => {
       showSkuPopup.value = false
       return
     }
-    if (currentNum.value > product.value.remainStock) {
+    if (currentNum.value > availableStock.value) {
       ElMessage.error('库存不足')
       return
     }
@@ -553,12 +564,17 @@ const confirmAddCart = async () => {
 
 // 立即购买
 const confirmBuy = async () => {
-  if (currentNum.value > product.value.remainStock) {
+  if (currentNum.value > availableStock.value) {
     ElMessage.error('库存不足')
     return
   }
   if (isTicketProduct.value && !selectedSku.value) {
     ElMessage.warning('请选择票种')
+    return
+  }
+  // 校验选中票种是否售罄或下架
+  if (isTicketProduct.value && selectedSku.value && isTicketDisabled(selectedSku.value)) {
+    ElMessage.error('当前票种已售罄或下架，请选择其他票种')
     return
   }
 

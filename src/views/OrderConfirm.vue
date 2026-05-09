@@ -256,7 +256,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { 
   showToast, 
@@ -384,6 +384,19 @@ onMounted(() => {
   }
 })
 
+watch(
+  () => route.name,
+  (newName) => {
+    if (newName === 'OrderConfirm') {
+      if (isTicket.value === 0) {
+        fetchAddressList()
+      } else {
+        fetchBuyerList()
+      }
+    }
+  }
+)
+
 const fetchAddressList = async () => {
   addressLoading.value = true
   try {
@@ -429,10 +442,7 @@ const selectAddress = (address) => {
 
 const goAddAddress = () => {
   addressPopupShow.value = false
-  router.push({
-    path: '/address/add',
-    query: { redirect: route.fullPath }
-  })
+  router.push({ path: '/address/add' })
 }
 
 const fetchBuyerList = async () => {
@@ -496,10 +506,7 @@ const selectBuyer = (buyer) => {
 
 const goAddBuyer = () => {
   buyerPopupShow.value = false
-  router.push({
-    path: '/buyer/add',
-    query: { redirect: route.fullPath }
-  })
+  router.push({ path: '/buyer/add' })
 }
 
 const submitOrder = async () => {

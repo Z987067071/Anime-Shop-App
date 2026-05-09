@@ -246,9 +246,16 @@
         </div>
 
         <!-- 加载更多 -->
-        <div class="load-more" v-if="productList.length > 0 && !loading">
-          <div class="divider">
+        <div class="load-more" v-if="productList.length > 0">
+          <div class="loading-more" v-if="loadingMore">
+            <div class="spinner-small"></div>
+            <span>加载中...</span>
+          </div>
+          <div class="divider" v-else-if="!hasMore">
             <span>已经到底啦 ~</span>
+          </div>
+          <div class="divider" v-else>
+            <span>下拉加载更多</span>
           </div>
         </div>
       </section>
@@ -286,6 +293,9 @@ const isScrolled = ref(false)
 const activeTab = ref('hot')
 const noticeCount = ref(3)
 const showPromo = ref(true)
+const currentPage = ref(1)
+const hasMore = ref(true)
+const loadingMore = ref(false)
 
 // 分类标签
 const tabs = [
@@ -316,10 +326,21 @@ const onBannerChange = (index) => {
 
 const handleScroll = (e) => {
   isScrolled.value = e.target.scrollTop > 50
+  
+  // 懒加载：滚动到底部时加载更多
+  const { scrollTop, scrollHeight, clientHeight } = e.target
+  const distanceToBottom = scrollHeight - scrollTop - clientHeight
+  
+  if (distanceToBottom < 300 && !loadingMore.value && hasMore.value && !loading.value) {
+    loadMoreProducts()
+  }
 }
 
 const switchTab = async (key) => {
   activeTab.value = key
+  currentPage.value = 1
+  hasMore.value = true
+  productList.value = []
   await loadProductList()
 }
 
@@ -344,7 +365,7 @@ const loadProductList = async () => {
   loading.value = true
   try {
     const params = {
-      pageNum: 1,
+      pageNum: currentPage.value,
       pageSize: 10,
       sort: activeTab.value
     }
@@ -355,13 +376,49 @@ const loadProductList = async () => {
     
     const res = await getHomeProductList(params)
     if (res.code === 0) {
-      productList.value = res.data?.records || []
+      const records = res.data?.records || []
+      productList.value = records
+      hasMore.value = records.length >= 10
     }
   } catch (error) {
     console.error('商品加载失败：', error)
     productList.value = []
   } finally {
     loading.value = false
+  }
+}
+
+const loadMoreProducts = async () => {
+  if (loadingMore.value || !hasMore.value) return
+  
+  loadingMore.value = true
+  try {
+    currentPage.value++
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: 10,
+      sort: activeTab.value
+    }
+    
+    // 根据tab添加分类筛选
+    if (activeTab.value === 'figure') params.firstCategoryId = 1
+    if (activeTab.value === 'goods') params.firstCategoryId = 2
+    
+    const res = await getHomeProductList(params)
+    if (res.code === 0) {
+      const records = res.data?.records || []
+      if (records.length > 0) {
+        productList.value = [...productList.value, ...records]
+        hasMore.value = records.length >= 10
+      } else {
+        hasMore.value = false
+      }
+    }
+  } catch (error) {
+    console.error('加载更多失败：', error)
+    currentPage.value-- // 失败时回退页码
+  } finally {
+    loadingMore.value = false
   }
 }
 
