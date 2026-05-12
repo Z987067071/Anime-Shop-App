@@ -95,68 +95,89 @@
       style="width: 100%; margin-top: 20px"
       v-loading="loading"
       :default-sort="{ prop: 'createTime', order: 'descending' }"
+      scroll-x
     >
-      <el-table-column prop="orderNo" label="订单编号" min-width="180" />
-      <el-table-column label="订单类型" width="120">
+      <el-table-column prop="orderNo" label="订单编号" min-width="160" />
+      <el-table-column label="订单类型" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.productType === 1 ? 'success' : 'primary'">
+          <el-tag :type="scope.row.productType === 1 ? 'success' : 'primary'" size="small">
             {{ scope.row.productType === 1 ? '漫展票务' : '普通商品' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="consignee" label="收货人/购票人" width="120" />
-      <el-table-column prop="consigneePhone" label="联系电话" width="120">
-        <template #default="scope">
-          {{ scope.row.consigneePhone ? scope.row.consigneePhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '无' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="核销码" width="120" v-show="true">
+      <el-table-column prop="consignee" label="收货人/购票人" width="110">
         <template #default="scope">
           <span v-if="scope.row.orderType === 1">
-            {{ scope.row.ticketRelations?.[0]?.verifyCode || '无' }}
+            <span v-if="scope.row.ticketRelations && scope.row.ticketRelations.length">
+              {{ scope.row.ticketRelations.map(t => t.realName).filter(Boolean).join('、') }}
+            </span>
+            <span v-else>-</span>
+          </span>
+          <span v-else>{{ scope.row.consignee || '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="consigneePhone" label="联系电话" width="110">
+        <template #default="scope">
+          <span v-if="scope.row.orderType === 1">
+            {{ scope.row.consigneePhone ? scope.row.consigneePhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '-' }}
+          </span>
+          <span v-else>
+            {{ scope.row.consigneePhone ? scope.row.consigneePhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '无' }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="核销码" width="100">
+        <template #default="scope">
+          <span v-if="scope.row.orderType === 1">
+            <div v-if="scope.row.ticketRelations && scope.row.ticketRelations.length">
+              <div v-for="(t, i) in scope.row.ticketRelations" :key="i" style="line-height: 1.6">
+                {{ t.verifyCode || '-' }}
+              </div>
+            </div>
+            <span v-else>无</span>
           </span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <<el-table-column label="核销状态" width="120" v-show="true">
+      <el-table-column label="核销状态" width="90">
         <template #default="scope">
           <span v-if="scope.row.orderType === 1">
-            <el-tag :type="getVerifyStatusTagType(scope.row.ticketRelations?.[0]?.verifyStatus)">
-              {{ getVerifyStatusText(scope.row.ticketRelations?.[0]?.verifyStatus) }}
-            </el-tag>
+            <div v-if="scope.row.ticketRelations && scope.row.ticketRelations.length">
+              <div v-for="(t, i) in scope.row.ticketRelations" :key="i" style="line-height: 1.8">
+                <el-tag :type="getVerifyStatusTagType(t.verifyStatus)" size="small">
+                  {{ getVerifyStatusText(t.verifyStatus) }}
+                </el-tag>
+              </div>
+            </div>
+            <span v-else>-</span>
           </span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="totalAmount" label="订单总金额(元)" width="120">
+      <el-table-column prop="totalAmount" label="总金额(元)" width="100">
         <template #default="scope">
           <span style="color: #e54847; font-weight: 500">¥{{ Number(scope.row.totalAmount).toFixed(2) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="payAmount" label="实付金额(元)" width="120">
+      <el-table-column label="订单状态" width="130">
         <template #default="scope">
-          ¥{{ Number(scope.row.payAmount).toFixed(2) }}
+          <el-tag :type="getOrderStatusTagType(scope.row.orderStatus)" size="small">{{ getOrderStatusText(scope.row.orderStatus) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="订单状态" width="140">
+      <el-table-column label="支付状态" width="90">
         <template #default="scope">
-          <el-tag :type="getOrderStatusTagType(scope.row.orderStatus)">{{ getOrderStatusText(scope.row.orderStatus) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="支付状态" width="120">
-        <template #default="scope">
-          <el-tag :type="getPayStatusTagType(scope.row.payStatus)">
+          <el-tag :type="getPayStatusTagType(scope.row.payStatus)" size="small">
             {{ getPayStatusText(scope.row.payStatus) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="支付方式" width="120">
+      <el-table-column label="支付方式" width="80">
         <template #default="scope">
           {{ getPayTypeText(scope.row.payType) }}
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="下单时间" width="180" />
-      <el-table-column prop="payTime" label="支付时间" width="180">
+      <el-table-column prop="createTime" label="下单时间" width="155" />
+      <el-table-column prop="payTime" label="支付时间" width="155">
         <template #default="scope">
           {{ scope.row.payTime || '未支付' }}
         </template>
@@ -198,7 +219,7 @@
             <el-button
               type="success"
               size="small"
-              v-if="scope.row.ticketRelations?.[0]?.verifyStatus === 0 && scope.row.orderStatus === 1"
+              v-if="hasUnverifiedTicket(scope.row)"
               @click="showVerifyDialog(scope.row)"
             >
               票务核销
@@ -275,16 +296,26 @@
             <span class="value">{{ getPayTypeText(Number(currentOrder.order.payType)) }}</span>
           </div>
           <div class="detail-row" style="margin-bottom: 10px" v-if="currentOrder.order.orderType === 1">
-            <span class="label">核销状态：</span>
-            <span class="value">
-              <el-tag :type="getVerifyStatusTagType(currentOrder.ticketRelations?.[0]?.verifyStatus)">
-                {{ getVerifyStatusText(currentOrder.ticketRelations?.[0]?.verifyStatus) }}
-              </el-tag>
-            </span>
-            <span class="label" style="margin-left: 20px">核销码：</span>
-            <span class="value">{{ currentOrder.ticketRelations?.[0]?.verifyCode || '无' }}</span>
-            <span class="label" style="margin-left: 20px">核销员：</span>
-            <span class="value">{{ currentOrder.ticketRelations?.[0]?.verifyStaff || '无' }}</span>
+            <div style="width: 100%">
+              <div v-for="(t, i) in (currentOrder.ticketRelations || [])" :key="i"
+                style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                <span class="label">第{{ i + 1 }}张票</span>
+                <span class="label" style="margin-left: 16px">购票人：</span>
+                <span class="value">{{ t.realName || '未填写' }}</span>
+                <span class="label" style="margin-left: 16px">身份证：</span>
+                <span class="value">{{ t.idCard ? t.idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2') : '未填写' }}</span>
+                <span class="label" style="margin-left: 16px">核销码：</span>
+                <span class="value" style="color: #e54847; font-weight: 500">{{ t.verifyCode || '无' }}</span>
+                <span class="label" style="margin-left: 16px">核销状态：</span>
+                <el-tag :type="getVerifyStatusTagType(t.verifyStatus)" size="small">{{ getVerifyStatusText(t.verifyStatus) }}</el-tag>
+                <span class="label" style="margin-left: 16px" v-if="t.verifyStaff">核销员：</span>
+                <span class="value" v-if="t.verifyStaff">{{ t.verifyStaff }}</span>
+                <span class="label" style="margin-left: 16px" v-if="t.verifyTime">核销时间：</span>
+                <span class="value" v-if="t.verifyTime">{{ t.verifyTime }}</span>
+              </div>
+              <div v-if="!currentOrder.ticketRelations || !currentOrder.ticketRelations.length"
+                style="color: #999">暂无核销记录</div>
+            </div>
           </div>
           <div class="detail-row" style="margin-bottom: 10px">
             <span class="label">下单时间：</span>
@@ -311,10 +342,7 @@
             <span class="value">{{ currentOrder.order.remark || '无' }}</span>
           </div>
           <div class="detail-row" style="margin-bottom: 10px" v-if="currentOrder.order.orderType === 1">
-            <span class="label">购票人实名：</span>
-            <span class="value">{{ currentOrder.ticketRelations?.[0]?.realName || '未填写' }}</span>
-            <span class="label" style="margin-left: 20px">身份证号：</span>
-            <span class="value">{{ currentOrder.ticketRelations?.[0]?.idCard ? currentOrder.ticketRelations[0].idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2') : '未填写' }}</span>
+            <!-- 多张票的购票人信息已在上方核销记录区域展示，此处不重复 -->
           </div>
           <div class="detail-row">
             <span class="label" v-if="currentOrder.order.orderType === 0">时间记录：</span>
@@ -383,10 +411,18 @@
 
     <el-dialog
       v-model="deliveryDialogVisible"
-      title="确认发货"
+      :title="currentDeliveryIsTicket ? '虚拟发货确认' : '确认发货'"
       width="400px"
     >
-      <el-form :model="deliveryForm" label-width="80px">
+      <div v-if="currentDeliveryIsTicket" style="padding: 10px 0 20px; color: #606266; line-height: 1.8;">
+        <el-alert
+          title="漫展票务订单为虚拟商品，无需填写物流信息，点击确认即可完成发货。"
+          type="info"
+          :closable="false"
+          show-icon
+        />
+      </div>
+      <el-form v-else :model="deliveryForm" label-width="80px">
         <el-form-item label="快递公司">
           <el-input v-model="deliveryForm.deliveryCompany" placeholder="请输入快递公司（如：顺丰）" />
         </el-form-item>
@@ -403,10 +439,22 @@
     <el-dialog
       v-model="verifyDialogVisible"
       title="漫展票务核销"
-      width="400px"
+      width="460px"
     >
       <el-form :model="verifyForm" label-width="80px" :rules="verifyRules" ref="verifyFormRef">
-        <el-form-item label="核销码" prop="verifyCode">
+        <!-- 多张票时显示选择 -->
+        <el-form-item label="选择票" v-if="currentVerifyTickets.length > 1">
+          <el-select v-model="verifyForm.verifyCode" placeholder="请选择要核销的票" style="width: 100%">
+            <el-option
+              v-for="(t, i) in currentVerifyTickets"
+              :key="t.verifyCode"
+              :label="`第${i+1}张 - ${t.realName || '未知'} - ${t.verifyCode}`"
+              :value="t.verifyCode"
+              :disabled="t.verifyStatus === 1"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="核销码" prop="verifyCode" v-else>
           <el-input v-model="verifyForm.verifyCode" disabled placeholder="自动填充核销码" />
         </el-form-item>
         <el-form-item label="核销员" prop="verifyStaff">
@@ -453,6 +501,8 @@ const verifyDialogVisible = ref(false)
 const currentOrder = ref(null) 
 const currentDeliveryOrderId = ref('')
 const currentVerifyOrderId = ref('')
+const currentDeliveryIsTicket = ref(false)
+const currentVerifyTickets = ref([]) // 当前核销订单的所有票
 // 表单相关
 const deliveryForm = reactive({
   deliveryCompany: '',
@@ -484,10 +534,10 @@ const getOrderList = async () => {
       orderNo: searchForm.orderNo.trim(),
       consignee: searchForm.consignee.trim(),
       consigneePhone: searchForm.consigneePhone.trim(),
-      orderStatus: searchForm.orderStatus ? Number(searchForm.orderStatus) : undefined,
-      payStatus: searchForm.payStatus ? Number(searchForm.payStatus) : undefined,
-      orderType: searchForm.orderType ? Number(searchForm.orderType) : undefined,
-      verifyStatus: searchForm.verifyStatus ? Number(searchForm.verifyStatus) : undefined
+      orderStatus: searchForm.orderStatus !== '' ? Number(searchForm.orderStatus) : undefined,
+      payStatus: searchForm.payStatus !== '' ? Number(searchForm.payStatus) : undefined,
+      orderType: searchForm.orderType !== '' ? Number(searchForm.orderType) : undefined,
+      verifyStatus: searchForm.verifyStatus !== '' ? Number(searchForm.verifyStatus) : undefined
     }
 
     const res = await getOrderListApi(params)
@@ -642,33 +692,41 @@ const viewOrderDetail = async (row) => {
 
 const showDeliveryDialog = (row) => {
   currentDeliveryOrderId.value = row.id
+  currentDeliveryIsTicket.value = row.orderType === 1
   deliveryForm.deliveryCompany = row.deliveryCompany || ''
   deliveryForm.deliverySn = row.deliverySn || ''
   deliveryDialogVisible.value = true
 }
 
 const confirmDelivery = async () => {
-  if (!deliveryForm.deliveryCompany.trim()) {
-    ElMessage.warning('请输入快递公司')
-    return
-  }
-  if (!deliveryForm.deliverySn.trim()) {
-    ElMessage.warning('请输入物流单号')
-    return
+  // 普通商品订单才校验物流信息
+  if (!currentDeliveryIsTicket.value) {
+    if (!deliveryForm.deliveryCompany.trim()) {
+      ElMessage.warning('请输入快递公司')
+      return
+    }
+    if (!deliveryForm.deliverySn.trim()) {
+      ElMessage.warning('请输入物流单号')
+      return
+    }
   }
   loading.value = true
   try {
-    const res = await updateOrderStatus({
+    const params = {
       id: currentDeliveryOrderId.value,
-      orderStatus: 2,
-      deliveryCompany: deliveryForm.deliveryCompany.trim(),
-      deliverySn: deliveryForm.deliverySn.trim()
-    })
+      orderStatus: 2
+    }
+    // 普通订单才传物流信息
+    if (!currentDeliveryIsTicket.value) {
+      params.deliveryCompany = deliveryForm.deliveryCompany.trim()
+      params.deliverySn = deliveryForm.deliverySn.trim()
+    }
+    const res = await updateOrderStatus(params)
     if (res.code !== 0) {
       ElMessage.error(res.msg || '确认发货失败')
       return
     }
-    ElMessage.success('确认发货成功')
+    ElMessage.success(currentDeliveryIsTicket.value ? '虚拟发货成功' : '确认发货成功')
     deliveryDialogVisible.value = false
     getOrderList()
   } catch (error) {
@@ -681,9 +739,18 @@ const confirmDelivery = async () => {
 
 const showVerifyDialog = (row) => {
   currentVerifyOrderId.value = row.id
-  verifyForm.verifyCode = row.ticketRelations?.[0]?.verifyCode || ''
+  // 只取未核销的票
+  const unverified = (row.ticketRelations || []).filter(t => t.verifyStatus === 0)
+  currentVerifyTickets.value = unverified
+  // 默认选中第一张未核销的票
+  verifyForm.verifyCode = unverified.length > 0 ? unverified[0].verifyCode : ''
   verifyForm.verifyStaff = ''
   verifyDialogVisible.value = true
+}
+
+// 判断订单是否还有未核销的票
+const hasUnverifiedTicket = (row) => {
+  return (row.ticketRelations || []).some(t => t.verifyStatus === 0)
 }
 
 const confirmVerify = async () => {

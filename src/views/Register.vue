@@ -37,6 +37,7 @@
               placeholder="请输入用户名"
               :rules="[{ required: true, message: '请输入用户名' }]"
               class="custom-field"
+              @blur="onUsernameBlur"
             />
           </div>
 
@@ -81,7 +82,7 @@
             />
             <div class="captcha-img" @click="getCaptcha">
               <img :src="captchaImg" alt="验证码" v-if="captchaImg" />
-              <span v-else>点击刷新</span>
+              <span v-else>输入账号后获取</span>
             </div>
           </div>
 
@@ -111,9 +112,6 @@ import { useRouter } from 'vue-router'
 import { showSuccessToast, showFailToast } from 'vant'
 import request from '../utils/request'
 
-onMounted(() => {
-  getCaptcha()
-})
 
 const router = useRouter()
 const form = reactive({
@@ -125,11 +123,21 @@ const form = reactive({
 const captchaImg = ref('')
 
 const getCaptcha = async () => {
+  if (!form.username) {
+    showFailToast('请先输入用户名')
+    return
+  }
   try {
     const { data } = await request.get('/captcha/img', { params: { username: form.username } })
     captchaImg.value = data
   } catch (e) {
     showFailToast('获取验证码失败')
+  }
+}
+
+const onUsernameBlur = () => {
+  if (form.username) {
+    getCaptcha()
   }
 }
 
