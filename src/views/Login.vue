@@ -33,6 +33,7 @@
               placeholder="请输入账号/手机号"
               :rules="[{ required: true, message: '请输入账号' }]"
               class="custom-field"
+              @blur="onUsernameBlur"
             />
           </div>
 
@@ -61,7 +62,7 @@
             />
             <div class="captcha-img" @click="refreshCaptcha">
               <img :src="captchaUrl" alt="验证码" v-if="captchaUrl" />
-              <span v-else>点击刷新</span>
+              <span v-else>输入账号后获取</span>
             </div>
           </div>
 
@@ -96,6 +97,10 @@ const form = reactive({ username: '', password: '', captcha: '' })
 const captchaUrl = ref('')
 
 const refreshCaptcha = async () => {
+  if (!form.username) {
+    showFailToast('请先输入账号')
+    return
+  }
   try {
     const { data } = await request.get('/captcha/img', { params: { username: form.username } })
     captchaUrl.value = data
@@ -104,8 +109,15 @@ const refreshCaptcha = async () => {
   }
 }
 
+// 用户名失焦时自动获取验证码
+const onUsernameBlur = () => {
+  if (form.username) {
+    refreshCaptcha()
+  }
+}
+
 onMounted(() => {
-  refreshCaptcha()
+  // 不在 onMounted 自动获取，避免 username 为空导致 key 错误
 })
 
 const onSubmit = async () => {

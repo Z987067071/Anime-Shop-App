@@ -142,6 +142,10 @@ import TabBar from '@/components/TabBar.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
+const redirectBack = () => {
+  router.back()
+}
+
 // 地区选择
 const showRegionPicker = ref(false)
 const regionValue = ref('')
@@ -174,7 +178,7 @@ const onRegionConfirm = ({ selectedOptions }) => {
 
 // 返回上一页
 const goBack = () => {
-  router.push({ name: 'AddressList' })
+  redirectBack()
 }
 
 // 提交表单
@@ -205,7 +209,7 @@ const onSubmit = async () => {
     const res = await addAddress(form.value)
     if (res.code === 0) {
       ElMessage.success('新增地址成功')
-      router.push({ name: 'AddressList' })
+      redirectBack()
     } else {
       ElMessage.error(res.msg || '新增地址失败')
     }

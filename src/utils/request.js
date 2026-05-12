@@ -1,5 +1,9 @@
 import axios from 'axios'
 import { showToast } from 'vant'
+<<<<<<< HEAD
+=======
+import router from '@/router'
+>>>>>>> master
 
 const request = axios.create({
   baseURL: '/api',
@@ -48,6 +52,7 @@ request.interceptors.response.use(
   error => {
     const status = error.response?.status
     const msg = error.response?.data?.msg || error.message || '网络错误'
+<<<<<<< HEAD
 
     if (status === 401) {
       if (!isRedirectingToLogin) {
@@ -65,6 +70,12 @@ request.interceptors.response.use(
       }
     } else {
       showToast(msg)
+=======
+    showToast(msg)
+    if (error.response?.status === 401) {
+      const isAdminPage = router.currentRoute.value.path.startsWith('/admin')
+      router.replace(isAdminPage ? '/admin/login' : '/login')
+>>>>>>> master
     }
 
     return Promise.reject(error)

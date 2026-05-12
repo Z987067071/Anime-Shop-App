@@ -105,6 +105,24 @@
       </div>
     </div>
 
+    <!-- 票务订单联系手机号 -->
+    <div class="contact-phone-wrap" v-if="isTicket === 1">
+      <div class="contact-phone-card" @click.stop>
+        <div class="address-card-header">
+          <span class="title-text">联系手机号</span>
+          <span class="required-tag">必填</span>
+        </div>
+        <van-field
+          v-model="contactPhone"
+          type="tel"
+          placeholder="请输入您的手机号，用于票务联系"
+          maxlength="11"
+          class="phone-field"
+          :rules="[{ required: true, message: '请输入手机号' }]"
+        />
+      </div>
+    </div>
+
     <van-popup v-model:show="addressPopupShow" position="bottom" round style="height: 70%">
       <div class="address-select-header">
         <span class="title">选择收货地址</span>
@@ -258,7 +276,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { 
   showToast, 
@@ -299,6 +317,7 @@ const buyerPopupShow = ref(false)
 
 const freightPrice = ref('0.00')
 const isSubmitting = ref(false)
+const contactPhone = ref('') // 票务订单联系手机号
 
 const totalTicketCount = computed(() => {
   return orderGoodsList.value.reduce((total, item) => {
@@ -314,7 +333,7 @@ const submitDisabled = computed(() => {
     return !selectedAddress.value
   }
   if (isTicket.value === 1) {
-    return selectedBuyerList.value.length !== totalTicketCount.value
+    return selectedBuyerList.value.length !== totalTicketCount.value || !contactPhone.value.trim()
   }
   return true
 })
@@ -386,6 +405,19 @@ onMounted(() => {
   }
 })
 
+watch(
+  () => route.name,
+  (newName) => {
+    if (newName === 'OrderConfirm') {
+      if (isTicket.value === 0) {
+        fetchAddressList()
+      } else {
+        fetchBuyerList()
+      }
+    }
+  }
+)
+
 const fetchAddressList = async () => {
   addressLoading.value = true
   try {
@@ -431,10 +463,7 @@ const selectAddress = (address) => {
 
 const goAddAddress = () => {
   addressPopupShow.value = false
-  router.push({
-    path: '/address/add',
-    query: { redirect: route.fullPath }
-  })
+  router.push({ path: '/address/add' })
 }
 
 const fetchBuyerList = async () => {
@@ -498,10 +527,7 @@ const selectBuyer = (buyer) => {
 
 const goAddBuyer = () => {
   buyerPopupShow.value = false
-  router.push({
-    path: '/buyer/add',
-    query: { redirect: route.fullPath }
-  })
+  router.push({ path: '/buyer/add' })
 }
 
 const submitOrder = async () => {
@@ -557,6 +583,21 @@ const submitOrder = async () => {
       orderParams.consignee = selectedAddress.value.consignee
       orderParams.consigneePhone = selectedAddress.value.phone
       orderParams.consigneeAddress = selectedAddress.value.fullAddress
+    } else if (isTicket.value === 1) {
+      // 票务订单：校验并带上联系手机号
+      if (!contactPhone.value.trim()) {
+        closeToast(loadingToast)
+        showFailToast('请填写联系手机号')
+        isSubmitting.value = false
+        return
+      }
+      if (!/^1[3-9]\d{9}$/.test(contactPhone.value.trim())) {
+        closeToast(loadingToast)
+        showFailToast('手机号格式不正确')
+        isSubmitting.value = false
+        return
+      }
+      orderParams.consigneePhone = contactPhone.value.trim()
     }
 
     const res = await apiSubmitOrder(orderParams)
@@ -833,6 +874,31 @@ const submitOrder = async () => {
 }
 
 /* 商品列表样式 */
+/* 票务联系手机号 */
+.contact-phone-wrap {
+  margin: 10px;
+}
+.contact-phone-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 18px;
+}
+.required-tag {
+  font-size: 12px;
+  color: #f44;
+  margin-left: 8px;
+}
+.phone-field {
+  margin-top: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 4px 0;
+}
+:deep(.phone-field .van-field__control) {
+  font-size: 15px;
+}
+
 .goods-wrap {
   background: #ffffff;
   border-radius: 12px;

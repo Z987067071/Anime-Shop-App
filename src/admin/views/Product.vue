@@ -125,7 +125,7 @@
           <el-input v-model="productForm.productName" placeholder="请输入商品名称" maxlength="100" show-word-limit />
         </el-form-item>
         <el-form-item label="所属分类" prop="categoryId">
-          <el-select v-model="productForm.categoryId" placeholder="请选择分类">
+          <el-select v-model="productForm.categoryId" placeholder="请选择分类" @change="handleCategoryChange">
             <el-option
               v-for="category in categoryList"
               :key="category.id"
@@ -260,6 +260,7 @@ const productForm = reactive({
   id: '',
   productName: '',
   categoryId: '',
+  firstCategoryId: '',
   productType: '0',
   price: '',
   originalPrice: '',
@@ -353,6 +354,15 @@ const formatTime = (timeStr) => {
   if (!timeStr) return '-'
   const date = new Date(timeStr)
   return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+}
+
+// 选择二级分类时，自动推导一级分类ID（firstCategoryId = 二级分类的 parentId）
+const handleCategoryChange = (selectedCategoryId) => {
+  // categoryList 里的 id/parentId 都是字符串（来自 CategoryTreeVO）
+  const found = categoryList.value.find(c => String(c.id) === String(selectedCategoryId))
+  // 转成数字传给后端（后端 firstCategoryId 是 Long）
+  productForm.firstCategoryId = found ? Number(found.parentId) : ''
+  console.log('[分类选择] categoryId=', selectedCategoryId, ' found=', found, ' firstCategoryId=', productForm.firstCategoryId)
 }
 
 // 递归扁平化分类列表
@@ -454,6 +464,7 @@ const openEditDialog = async (row) => {
         id: detail.id,
         productName: detail.productName || '',
         categoryId: detail.categoryId || '',
+        firstCategoryId: detail.firstCategoryId || '',
         productType: detail.productType?.toString() || '0',
         price: detail.price || '',
         originalPrice: detail.originalPrice || '',
@@ -494,6 +505,7 @@ const resetForm = () => {
     id: '',
     productName: '',
     categoryId: '',
+    firstCategoryId: '',
     productType: '0',
     price: '',
     originalPrice: '',
@@ -523,6 +535,7 @@ const submitForm = async () => {
           ...productForm,
           imageList: uniqueImageUrls
         };
+        console.log('[提交商品] submitData=', JSON.stringify(submitData))
         let res
         if (isEdit.value) {
           res = await editProduct(submitData)

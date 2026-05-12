@@ -96,7 +96,10 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior() {
+    return { top: 0 }
+  }
 })
 
 router.beforeEach(async (to, from, next) => {
@@ -126,6 +129,15 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next()
+})
+
+router.afterEach(() => {
+  // 滚动容器是 Home.vue 里的 .content div，不是 window
+  // scrollBehavior 对非 window 容器无效，需手动重置
+  const contentEl = document.querySelector('.content')
+  if (contentEl) {
+    contentEl.scrollTop = 0
+  }
 })
 
 export default router

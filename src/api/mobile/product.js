@@ -51,13 +51,16 @@ export const searchProductList = (params) => {
   })
 }
 
-// 首页全商品列表（分页）
+// 首页全商品列表（分页，支持 sort/firstCategoryId 筛选）
 export function getHomeProductList(pageParams = {}) {
-  const { pageNum = 1, pageSize = 10 } = pageParams
+  const { pageNum = 1, pageSize = 10, sort, firstCategoryId } = pageParams
+  const params = { pageNum, pageSize }
+  if (sort) params.sort = sort
+  if (firstCategoryId !== undefined && firstCategoryId !== null) params.firstCategoryId = firstCategoryId
   return request({
     url: '/mobile/product/list',
     method: 'get',
-    params: { pageNum, pageSize }
+    params
   })
 }
 
