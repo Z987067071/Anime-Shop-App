@@ -392,6 +392,10 @@ onMounted(() => {
   box-shadow: 0 4px 16px rgba(255, 36, 66, 0.3);
 }
 
+.nav-item:not(.active) {
+  color: #555;
+}
+
 .nav-icon {
   font-size: 24px;
   line-height: 1;
@@ -724,7 +728,7 @@ onMounted(() => {
 .category-desc {
   font-size: 12px;
   color: #999;
-  margin: 0 0 10px 0;
+  margin: 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
